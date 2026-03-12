@@ -1,73 +1,66 @@
-# React + TypeScript + Vite
+# Revoirt
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A collaborative code platform that enables users to code concurrently on the same editor in real-time. Write, share, and collaborate on code seamlessly with other developers from anywhere in the world.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Real-time Collaboration** - Multiple users can edit the same file simultaneously with live updates
+- **Web-Based Editor** - No installation required; access from any modern web browser
+- **Syntax Highlighting** - Support for multiple programming languages with beautiful syntax highlighting
+- **Concurrent Editing** - See other users' cursors and changes in real-time
+- **Version Control Integration** - Track changes and maintain code history
+- **Responsive Design** - Works seamlessly on desktop and tablet devices
+- **User-Friendly Interface** - Intuitive UI designed for developer productivity
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React 18+ with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS (or your preferred styling solution)
+- **Package Manager**: pnpm
+- **Routing**: React Router
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Usage
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. **Create a Room** - Start a new collaborative coding session
+2. **Share Link** - Invite others by sharing the unique room link
+3. **Start Coding** - Begin editing code in real-time with your collaborators
+4. **Save & Export** - Save your work or export code in multiple formats
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/       # React components
+│   ├── App.tsx      # Main app component
+│   └── Home.tsx     # Home page
+├── router/          # Routing configuration
+│   └── Route.tsx    # Route definitions
+├── assets/          # Static assets
+├── index.css        # Global styles
+└── main.tsx         # Application entry point
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Contributing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Contributions are welcome! Please follow these steps:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support, please open an issue on GitHub or contact the maintainers.
+
+---
+
+**Happy Coding!** 🚀
