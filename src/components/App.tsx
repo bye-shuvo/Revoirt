@@ -1,20 +1,18 @@
-import Editor, { type Monaco } from "@monaco-editor/react";
-import { useRef, useState } from "react"
+import Editor from "@monaco-editor/react";
+import { useRef } from "react"
 import FileExplorar from "./FileExplorar";
 import Terminal from "./Terminal";
 import Navigation from "./Navigation";
+import { useValue } from "../states/store";
 
 const App = () => {
-  const editorRef = useRef<Monaco>(null);
-  const [value , setValue] = useState("");
+  const editorRef = useRef(null);
+  const value = useValue((state) => state.value);
+  const setValue = useValue((state) => state.setValue);
 
-  const handleEditorDidMount = (editor: any, monoco: any) => {
+  const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
     editor.focus();
-  }
-  const showValue = () => {
-    alert(editorRef.current!.getValue());
-
   }
 
   const handleEditorChange = (value : any) => setValue(value) ;
@@ -23,7 +21,7 @@ const App = () => {
     <main className="h-screen w-screen">
       <Navigation />
       <div className="h-[95%] w-full flex items-end">
-        <FileExplorar value={value}/>
+        <FileExplorar />
         <div className="h-full w-full relative">
           <Editor
             height="100%"
