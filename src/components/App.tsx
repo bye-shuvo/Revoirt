@@ -1,6 +1,6 @@
 import Editor from "@monaco-editor/react";
 import { useRef } from "react"
-import FileExplorar from "./FileExplorar";
+import FileExplorar from "./FileExplorer";
 import Terminal from "./Terminal";
 import Navigation from "./Navigation";
 import { useValue } from "../states/store";
