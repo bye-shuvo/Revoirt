@@ -4,6 +4,7 @@ interface file {
   path: string,  // primary key
   name: string,
   type: string,
+  extension : string ,
   parentPath: string,
   content: string,
   createdAt: Date,
@@ -12,7 +13,7 @@ interface file {
 const FileExplorer = () => {
 
   const [files, setFiles] = useState<file | null>(null);
-  
+
   useEffect(() => {
 
   }, []);
