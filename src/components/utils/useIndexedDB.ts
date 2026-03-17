@@ -36,7 +36,7 @@ export const putFile = async (file: object) => {
     await new Promise((resolve, reject) => {
         tx.onerror = () => reject(tx.error);
         tx.onabort = () => reject(tx.error);
-        tx.oncomplete = () => resolve(tx);
+        tx.oncomplete = () => resolve(tx.db);
     })
 }
 
@@ -47,6 +47,21 @@ export const getAllFiles = async ():Promise<[]> => {
     const store = tx.objectStore("files");
 
     return await promisifyRequest(store.getAll());
+}
+
+export const deleteFile = async (path : string) => {
+    const db = await openDB();
+
+    const tx = db.transaction("files" , "readwrite");
+    const store = tx.objectStore("files");
+
+    await promisifyRequest(store.delete(path));
+
+    await new Promise((resolve , reject) => {
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+        tx.oncomplete = () => resolve(tx.db);
+    })
 }
 
 export const executeIDB = async (file: any) : Promise<[]> => {
