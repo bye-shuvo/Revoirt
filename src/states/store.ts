@@ -39,3 +39,14 @@ export const useFiles = create<fileState>()((set) => ({
     files : [{name : "index.js" , content : ""}] ,
     setFiles : (nextValue) => set((state) => ({ files : [...state.files , nextValue]}))
 }))
+
+
+type path = {
+    path : string ,
+    setPath : (next : string) => void ;
+}
+
+export const useFilePath = create<path>((set) => ({
+    path : "" , 
+    setPath : (next) => set({path : next})
+}))
