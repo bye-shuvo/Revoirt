@@ -42,6 +42,7 @@ const monacoLanguages: Record<string, string> = {
   "java": "java",
   "javascript": "javascript",
   "js": "javascript",
+  "jsx": "javascript",
   "json": "json",
   "json5": "json5",
   "julia": "julia",
@@ -90,6 +91,7 @@ const monacoLanguages: Record<string, string> = {
   "systemverilog": "systemverilog",
   "tcl": "tcl",
   "ts": "typescript",
+  "tsx": "typescript",
   "twig": "twig",
   "typescript": "typescript",
   "typespec": "typespec",
@@ -102,7 +104,9 @@ const monacoLanguages: Record<string, string> = {
 
 const FileExplorer = () => {
   const [isAddingNewFile, setIsAddingNewFile] = useState(false);
+  const [deletableFilePath, setDeletableFilePath] = useState("");
   const inputFile = useRef<HTMLLIElement>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
   const [files, setFiles] = useState<file[]>([]);
   const [file, setFile] = useState<file | undefined>(); //put new file
   const setPath = useFilePath((state) => state.setPath);
@@ -130,21 +134,35 @@ const FileExplorer = () => {
   }
 
   const createFileEvent = (e: any): void => {
-    (!Array.from(inputFile.current?.children || []).includes(e.target as Element)) && setIsAddingNewFile(false);
+    if (!Array.from(inputFile.current?.children || []).includes(e.target as Element)) {
+      setIsAddingNewFile(false);
+    }
   }
 
-  const createFile = (e: any): void => {
+  const deleteFileEvent = (e: any): void => {
+    if (!Array.from(contextMenuRef.current?.children || []).includes(e.target as Element)) {
+      setDeletableFilePath("");
+    }
+  }
+
+  const createFile = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === "Enter") {
       refreshFiles();
       setFile(undefined);
       setIsAddingNewFile(false)
-      alert("Enter clicked");
     }
+  }
+
+  const handleFileDelete = async (path: string) => {
+    await deleteFile(path);
+    await refreshFiles();
+    setDeletableFilePath("");
   }
 
   useEffect(() => {
     document.addEventListener("mousedown", createFileEvent);
-    return () => { document.removeEventListener("mousedown", createFileEvent); }
+    document.addEventListener("mousedown" , deleteFileEvent);
+    return () => { document.removeEventListener("mousedown", createFileEvent);  document.removeEventListener("mousedown" , deleteFileEvent)}
   }, [])
 
   useEffect(() => {
@@ -159,9 +177,16 @@ const FileExplorer = () => {
       <ul className="flex flex-col justify-center w-full">
         {
           files?.map((file: file) => {
-            return <li key={file.path} onClick={() => setPath(file.path)} className='flex gap-2 text-[1rem] cursor-pointer hover:bg-gray-500/50 p-2' >
+            return <li key={file.path} onClick={() => setPath(file.path)}
+              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setDeletableFilePath(file.path) }} className='flex gap-2 text-[1rem] cursor-pointer hover:bg-gray-500/50 p-2 relative text-white' >
               <svg className='h-6 w-6' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="rgb(255, 255, 255)" d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 234.5C512 217.5 505.3 201.2 493.3 189.2L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z" /></svg>
               {file.name}
+              {
+                (deletableFilePath === file.path) && <div ref={contextMenuRef} className='flex flex-col border border-slate-500 bg-gray-900 absolute z-10 w-7/8 p-2 rounded-sm'><button className='p-1 hover:bg-gray-700/50 rounded-sm' onClick={(e) => { e.stopPropagation(); }}>Rename...</button>
+                  <p className='w-full border-b border-slate-600'></p>
+                  <button className='p-1 hover:bg-gray-700/50 rounded-sm' onClick={(e) => { e.stopPropagation(); handleFileDelete(file.path) }}>Delete</button>
+                </div>
+              }
             </li>
           })
         }
