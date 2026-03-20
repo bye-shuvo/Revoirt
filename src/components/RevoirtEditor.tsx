@@ -1,9 +1,8 @@
 import Editor from "@monaco-editor/react"
 import { useRef, useEffect, useState } from "react";
 
-import { useFilePath, useValue } from "../states/store.ts";
-import { getAllFiles } from "./utils/useIndexedDB.ts";
-
+import { useFilePath } from "../states/store.ts";
+import { putFile, getAllFiles } from "./utils/useIndexedDB.ts";
 
 interface file {
   path: string,  // primary key
@@ -12,31 +11,55 @@ interface file {
   extension: string,
   parentPath: string,
   content: string,
-  createdAt: Date,
-  updatedAt: Date,
+  createdAt: number,
+  updatedAt: number,
 }
 
 const RevoirtEditor = () => {
   const editorRef = useRef(null);
   const path = useFilePath((state) => state.path);
 
-  const setValue = useValue((state) => state.setValue);
   const [file, setFile] = useState<file>();
+  const [value, setValue] = useState("");
+
+  const refreshEditor = async (): Promise<void> => {
+    const files: file[] = await getAllFiles();
+    const openFile = files.find((file: file) => file.path === path)
+    setFile(openFile);
+    setValue(openFile?.content ?? "");
+  }
 
   const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
     editor.focus();
   };
 
-  const handleEditorChange = (value: any) => setValue(value);
+  const handleValueChange = (value: string | undefined) => {
+    if (value !== undefined) {
+      setValue(value);
+    }
+  }
+
+  const updateFile = async (e: KeyboardEvent): Promise<void> => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+
+      if (!file) return;
+
+      const updatedFile: file = { ...file, content: value, updatedAt: Date.now() }
+
+      await putFile(updatedFile);
+    }
+  }
 
   useEffect(() => {
-    (async () => {
-      const files: file[] = await getAllFiles();
-      const openFile = files.find((file: file) => file.path === path)
-      setFile(openFile);
-    })();
+    refreshEditor();
   }, [path]);
+
+  useEffect(() => {
+    document.addEventListener("keydown", updateFile);
+    return () => document.removeEventListener("keydown", updateFile);
+  }, [file , value])
 
   return (
     <>
@@ -49,7 +72,7 @@ const RevoirtEditor = () => {
           <Editor
             height="100%"
             language={file?.type}
-            value={file?.content}
+            value={value}
             theme="vs-dark"
             path={path}
             options={{
@@ -65,7 +88,7 @@ const RevoirtEditor = () => {
               fontFamily: "Fira Code",
             }}
             onMount={handleEditorDidMount}
-            onChange={handleEditorChange}
+            onChange={handleValueChange}
           />
       }
     </>

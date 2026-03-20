@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, type KeyboardEventHandler } from 'react';
 import { deleteFile, executeIDB } from "./utils/useIndexedDB.ts";
 import { useFilePath } from '../states/store.ts';
 
@@ -133,12 +133,11 @@ const FileExplorer = () => {
     (!Array.from(inputFile.current?.children || []).includes(e.target as Element)) && setIsAddingNewFile(false);
   }
 
-  const createFile = (e: any): void => {
+  const createFile = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === "Enter") {
       refreshFiles();
       setFile(undefined);
       setIsAddingNewFile(false)
-      alert("Enter clicked");
     }
   }
 
