@@ -4,6 +4,7 @@ import FileExplorer from "./FileExplorer";
 import Terminal from "./Terminal";
 import Navigation from "./Navigation";
 import RevoirtEditor from "./RevoirtEditor";
+import Tooltip from "./Tooltip";
 
 const App = () => {
 
@@ -36,6 +37,7 @@ const App = () => {
           </Group>
         </Panel>
       </Group>
+      <Tooltip />
     </main>
   );
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { deleteFile, executeIDB } from "./utils/useIndexedDB.ts";
-import { useFilePath } from '../states/store.ts';
+import { useFilePath, useFiles } from '../states/store.ts';
 
 interface file {
   path: string;  // primary key
@@ -107,9 +107,13 @@ const FileExplorer = () => {
   const [deletableFilePath, setDeletableFilePath] = useState("");
   const inputFile = useRef<HTMLLIElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
-  const [files, setFiles] = useState<file[]>([]);
   const [file, setFile] = useState<file | undefined>(); //put new file
+  
+  //global states
+  const path = useFilePath((state) => state.path);
   const setPath = useFilePath((state) => state.setPath);
+  const files = useFiles((state) => state.files);
+  const setFiles = useFiles((state) => state.setFiles);
 
   const refreshFiles = async () => {
     const files: file[] = await executeIDB(file);
@@ -170,15 +174,15 @@ const FileExplorer = () => {
   }, []);
 
   return (
-    <aside className='h-full bg-amber-300'>
-      <div aria-labelledby="buttons" className="flex gap-2 h-[6%]">
+    <aside className='h-full bg-[#181818]'>
+      <div aria-labelledby="buttons" className="flex gap-2 h-[7%]">
         <button className="py-2 px-5" onClick={() => { setIsAddingNewFile(true) }}><svg className="h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="rgb(255, 255, 255)" d="M128 64C92.7 64 64 92.7 64 128L64 512C64 547.3 92.7 576 128 576L308 576C285.3 544.5 272 505.8 272 464C272 363.4 349.4 280.8 448 272.7L448 234.6C448 217.6 441.3 201.3 429.3 189.3L322.7 82.7C310.7 70.7 294.5 64 277.5 64L128 64zM389.5 240L296 240C282.7 240 272 229.3 272 216L272 122.5L389.5 240zM464 608C543.5 608 608 543.5 608 464C608 384.5 543.5 320 464 320C384.5 320 320 384.5 320 464C320 543.5 384.5 608 464 608zM480 400L480 448L528 448C536.8 448 544 455.2 544 464C544 472.8 536.8 480 528 480L480 480L480 528C480 536.8 472.8 544 464 544C455.2 544 448 536.8 448 528L448 480L400 480C391.2 480 384 472.8 384 464C384 455.2 391.2 448 400 448L448 448L448 400C448 391.2 455.2 384 464 384C472.8 384 480 391.2 480 400z" /></svg></button>
       </div>
       <ul className="flex flex-col justify-center w-full">
         {
           files?.map((file: file) => {
             return <li key={file.path} onClick={() => setPath(file.path)}
-              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setDeletableFilePath(file.path) }} className='flex gap-2 text-[1rem] cursor-pointer hover:bg-gray-500/50 p-2 relative text-white' >
+              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setDeletableFilePath(file.path) }} className={`flex gap-2 text-[1rem] cursor-pointer hover:bg-gray-500/50 p-2 relative text-white ${file?.path === path ? "bg-[#222222]" : ""}`} >
               <svg className='h-6 w-6' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="rgb(255, 255, 255)" d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 234.5C512 217.5 505.3 201.2 493.3 189.2L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z" /></svg>
               {file.name}
               {
