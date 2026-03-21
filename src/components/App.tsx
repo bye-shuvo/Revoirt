@@ -12,7 +12,7 @@ const App = () => {
       <Navigation />
       <Group
         id="Revoirt-editor"
-        className="max-h-[92%]"
+        className="max-h-[94%]"
         orientation="horizontal"
       >
         <Panel
