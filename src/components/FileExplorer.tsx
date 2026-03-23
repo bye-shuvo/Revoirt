@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { deleteFile, executeIDB } from "./utils/useIndexedDB.ts";
+import { deleteFile, executeIDB } from "./utils/useIDB.ts";
 import { useFilePath, useFiles } from '../states/store.ts';
 
 interface file {
