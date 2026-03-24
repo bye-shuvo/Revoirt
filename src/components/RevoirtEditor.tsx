@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from "react";
 
 import { useFilePath, useFiles, useLineCount } from "../states/store.ts";
 import { putFile } from "./utils/useIDB.ts";
+import { get, put } from "./utils/useSessionStorage.ts";
 
 interface file {
   path: string,  // primary key
@@ -18,7 +19,7 @@ interface file {
 const RevoirtEditor = () => {
   const editorRef = useRef<Monaco>(null);
   const [file, setFile] = useState<file>();
-  const [openFileCount , setOpenFileCount] = useState<number | null>(null);
+  const [openFileCount, setOpenFileCount] = useState<number | null>(null);
   const currentContent = useRef<string>("");
   const navFilesRef = useRef<file[]>([]);
   const currentFilesRef = useRef<file[] | null>(null);
@@ -33,22 +34,36 @@ const RevoirtEditor = () => {
     setLineCount(count);
   }
 
-  const getUpdatedFiles = (value: string) => {
+  const initializeFiles = async (): Promise<void> => {
+    try {
+      const stashFiles = await get("files"); //Data from session storage
+      currentFilesRef.current = stashFiles;
+    } catch {
+      if (files) { //Data from global storage
+        currentFilesRef.current = files;
+        await put("files", files);
+      } else {
+        console.error("Occured Unexpected Errors!!!");
+      }
+    }
+  }
+
+  const getUpdatedFiles = async (value: string): Promise<void> => {
     const currentFile = currentFilesRef.current?.find((file) => file.path === path);
     if (!currentFile) return;
     const updatedFile: file = { ...currentFile, content: value };
     const restFiles = currentFilesRef.current?.filter((file) => file.path !== path) ?? [];
-    currentFilesRef.current = [...restFiles, updatedFile];
+    const updatedFiles = [...restFiles, updatedFile];
+    currentFilesRef.current = updatedFiles;
+    await put("files", updatedFiles);
   }
 
   const refreshEditor = async (): Promise<void> => {
-    getLineCount();
-
     const openFile = currentFilesRef.current?.find((file: file) => file.path === path);
 
     if (openFile) {
       setFile(openFile);
-
+      getLineCount();
       currentContent.current = openFile?.content ?? ""
 
       const navFiles = navFilesRef.current;
@@ -59,10 +74,10 @@ const RevoirtEditor = () => {
   const handleFileClose = (closePath: string) => {
     const navFiles = navFilesRef.current;
     const remainingFiles = navFiles.filter((file) => file.path !== closePath);
-    navFilesRef.current = remainingFiles ;
+    navFilesRef.current = remainingFiles;
     setOpenFileCount(remainingFiles.length);
 
-    if(closePath === path){
+    if (closePath === path) {
       const lastFile = remainingFiles.at(-1);
       setPath(lastFile ? lastFile?.path : "");
     }
@@ -71,6 +86,7 @@ const RevoirtEditor = () => {
   const handleEditorDidMount = (editor: Monaco) => {
     editorRef.current = editor;
     editor.focus();
+    getLineCount();
   };
 
   const handleValueChange = async (value: string | undefined) => {
@@ -95,14 +111,15 @@ const RevoirtEditor = () => {
     refreshEditor();
   }, [path]);
 
+
+  useEffect(() => {
+    initializeFiles();
+  }, [files]);
+
   useEffect(() => {
     document.addEventListener("keydown", updateFile);
     return () => document.removeEventListener("keydown", updateFile);
-  }, [file, currentContent.current])
-
-  useEffect(() => {
-    (files) && (async () => { currentFilesRef.current = files })()
-  }, [files]);
+  }, [file]);
 
   return (
     <>
