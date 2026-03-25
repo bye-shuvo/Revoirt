@@ -10,6 +10,16 @@ export const useFilePath = create<path>((set) => ({
     setPath : (next) => set({path : next})
 }))
 
+type deletedPath = {
+    deletedPath : string ,
+    setDeletedPath : (next : string) => void ;
+}
+
+export const useDeletedFilePath = create<deletedPath>((set) => ({
+    deletedPath : "" ,
+    setDeletedPath : (next) => set({deletedPath : next})
+}))
+
 interface IDBfile {
   path: string;  // primary key
   name: string;

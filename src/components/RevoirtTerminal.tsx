@@ -36,7 +36,7 @@ const RevoirtTerminal = () => {
     return () => term.dispose();
   }, [])
   return (
-    <div ref={terminalElementRef} className="bg-green-400 w-full h-full">
+    <div ref={terminalElementRef} className="bg-[#181818] w-full h-full border-t border-t-gray-600 p-5">
 
     </div>
   )

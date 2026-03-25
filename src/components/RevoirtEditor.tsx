@@ -1,7 +1,7 @@
 import Editor, { type Monaco } from "@monaco-editor/react"
 import { useRef, useEffect, useState } from "react";
 
-import { useFilePath, useFiles, useLineCount } from "../states/store.ts";
+import { useDeletedFilePath, useFilePath, useFiles, useLineCount } from "../states/store.ts";
 import { putFile } from "./utils/useIDB.ts";
 import { get, put } from "./utils/useSessionStorage.ts";
 
@@ -23,11 +23,16 @@ const RevoirtEditor = () => {
   const currentContent = useRef<string>("");
   const navFilesRef = useRef<file[]>([]);
   const currentFilesRef = useRef<file[] | null>(null);
+
   //Global states
   const path = useFilePath((state) => state.path);
   const setPath = useFilePath((state) => state.setPath);
   const files = useFiles((state) => state.files);
   const setLineCount = useLineCount((state) => state.setLineCount);
+  const deletedPath = useDeletedFilePath((state) => state.deletedPath);
+  const setDeletedPath = useDeletedFilePath((state) => state.setDeletedPath);
+
+
 
   const getLineCount = () => {
     const count = editorRef.current?.getModel()?.getLineCount();
@@ -36,8 +41,14 @@ const RevoirtEditor = () => {
 
   const initializeFiles = async (): Promise<void> => {
     try {
-      const stashFiles = await get("files"); //Data from session storage
-      currentFilesRef.current = stashFiles;
+      if (files && (files !== currentFilesRef.current)) {
+        currentFilesRef.current = files;
+        await put("files", files);
+      }
+      else {
+        const stashFiles = await get("files"); //Data from session storage
+        currentFilesRef.current = stashFiles;
+      }
     } catch {
       if (files) { //Data from global storage
         currentFilesRef.current = files;
@@ -111,8 +122,14 @@ const RevoirtEditor = () => {
     refreshEditor();
   }, [path]);
 
+  useEffect(() => {
+    if(!deletedPath) return;
+    handleFileClose(deletedPath);
+  }, [deletedPath]);
+
 
   useEffect(() => {
+    if (!files) return;
     initializeFiles();
   }, [files]);
 
