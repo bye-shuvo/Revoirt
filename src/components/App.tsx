@@ -31,7 +31,7 @@ const App = () => {
             <Panel id="editor" defaultSize={"100%"}>
               <RevoirtEditor />
             </Panel>
-            <Panel id="terminal" collapsible defaultSize={0} minSize={"10%"}>
+            <Panel id="terminal" collapsible defaultSize={0} minSize={"10%"} maxSize={"74%"}>
               <RevoirtTerminal />
             </Panel>
           </Group>
