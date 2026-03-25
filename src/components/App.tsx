@@ -1,7 +1,7 @@
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 import FileExplorer from "./FileExplorer";
-import Terminal from "./Terminal";
+import RevoirtTerminal from "./RevoirtTerminal";
 import Navigation from "./Navigation";
 import RevoirtEditor from "./RevoirtEditor";
 import Tooltip from "./Tooltip";
@@ -32,7 +32,7 @@ const App = () => {
               <RevoirtEditor />
             </Panel>
             <Panel id="terminal" collapsible defaultSize={0} minSize={"10%"}>
-              <Terminal />
+              <RevoirtTerminal />
             </Panel>
           </Group>
         </Panel>
