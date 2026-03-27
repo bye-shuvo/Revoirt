@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { deleteFile, executeIDB } from "./utils/useIDB.ts";
 import { useDeletedFilePath, useFilePath, useFiles } from '../states/store.ts';
+import { put } from './utils/useSessionStorage.ts';
 
 interface file {
   path: string;  // primary key
@@ -119,6 +120,7 @@ const FileExplorer = () => {
   const refreshFiles = async () => {
     const files: file[] = await executeIDB(file);
     setFiles(files);
+    await put("files" , files);
   }
 
   const handleFileChange = (e: any): void => {
