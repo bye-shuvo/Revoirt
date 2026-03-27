@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { deleteFile, executeIDB } from "./utils/useIDB.ts";
 import { useDeletedFilePath, useFilePath, useFiles } from '../states/store.ts';
-import { put } from './utils/useSessionStorage.ts';
+import { get, put } from './utils/useSessionStorage.ts';
 
 interface file {
   path: string;  // primary key
@@ -108,7 +108,7 @@ const FileExplorer = () => {
   const inputFile = useRef<HTMLLIElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const [file, setFile] = useState<file | undefined>(); //put new file
-  
+
   //global states
   const path = useFilePath((state) => state.path);
   const setPath = useFilePath((state) => state.setPath);
@@ -120,7 +120,11 @@ const FileExplorer = () => {
   const refreshFiles = async () => {
     const files: file[] = await executeIDB(file);
     setFiles(files);
-    await put("files" , files);
+    try {
+      await get("files");
+    } catch {
+      await put("files", files);
+    }
   }
 
   const handleFileChange = (e: any): void => {
@@ -168,8 +172,8 @@ const FileExplorer = () => {
 
   useEffect(() => {
     document.addEventListener("mousedown", createFileEvent);
-    document.addEventListener("mousedown" , deleteFileEvent);
-    return () => { document.removeEventListener("mousedown", createFileEvent);  document.removeEventListener("mousedown" , deleteFileEvent)}
+    document.addEventListener("mousedown", deleteFileEvent);
+    return () => { document.removeEventListener("mousedown", createFileEvent); document.removeEventListener("mousedown", deleteFileEvent) }
   }, [])
 
   useEffect(() => {
@@ -185,7 +189,7 @@ const FileExplorer = () => {
         {
           files?.map((file: file) => {
             return <li key={file.path} onClick={() => setPath(file.path)}
-              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setDeletedPath(file?.path)}} className={`flex gap-2 text-[1rem] cursor-pointer hover:bg-gray-500/50 p-2 relative text-white ${file?.path === path ? "bg-[#222222]" : ""}`} >
+              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setDeletedPath(file?.path) }} className={`flex gap-2 text-[1rem] cursor-pointer hover:bg-gray-500/50 p-2 relative text-white ${file?.path === path ? "bg-[#222222]" : ""}`} >
               <svg className='h-6 w-6' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="rgb(255, 255, 255)" d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 234.5C512 217.5 505.3 201.2 493.3 189.2L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z" /></svg>
               {file.name}
               {
