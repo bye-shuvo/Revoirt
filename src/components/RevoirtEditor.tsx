@@ -1,7 +1,7 @@
 import Editor, { type Monaco } from "@monaco-editor/react"
 import { useRef, useEffect, useState } from "react";
 
-import { useDeletedFilePath, useFilePath, useFiles, useLineCount } from "../states/store.ts";
+import { useDeletedFilePath, useFileCount, useFilePath, useFiles, useLineCount } from "../states/store.ts";
 import { putFile } from "./utils/useIDB.ts";
 import { get, put } from "./utils/useSessionStorage.ts";
 
@@ -19,7 +19,6 @@ interface file {
 const RevoirtEditor = () => {
   const editorRef = useRef<Monaco>(null);
   const [file, setFile] = useState<file>();
-  const [openFileCount, setOpenFileCount] = useState<number | null>(null);
   const currentContent = useRef<string>("");
   const navFilesRef = useRef<file[]>([]);
   const currentFilesRef = useRef<file[] | null>(null);
@@ -30,38 +29,56 @@ const RevoirtEditor = () => {
   const files = useFiles((state) => state.files);
   const setLineCount = useLineCount((state) => state.setLineCount);
   const deletedPath = useDeletedFilePath((state) => state.deletedPath);
-  const setDeletedPath = useDeletedFilePath((state) => state.setDeletedPath);
+  const setFileCount = useFileCount((state) => state.setFileCount);
 
-
-
-  const getLineCount = () => {
-    const count = editorRef.current?.getModel()?.getLineCount();
-    setLineCount(count);
-  }
+  //Helper Functions
 
   const initializeFiles = async (): Promise<void> => {
     try {
-      if (files && (files !== currentFilesRef.current)) {
-        currentFilesRef.current = files;
-        await put("files", files);
-      }
-      else {
-        const stashFiles = await get("files"); //Data from session storage
-        currentFilesRef.current = stashFiles;
-      }
+      const stashFiles = await get("files"); //Data from session storage
+      currentFilesRef.current = stashFiles;
     } catch {
       if (files) { //Data from global storage
         currentFilesRef.current = files;
-        await put("files", files);
       } else {
-        console.error("Occured Unexpected Errors!!!");
+        console.error("Unexpected Errors Occured!!!");
       }
+    }
+    finally {
+      if (!deletedPath) return;
+      handleFileClose(deletedPath);
+    }
+  }
+
+  const refreshEditor = (): void => {
+    const openFile = currentFilesRef.current?.find((file: file) => file.path === path);
+    if (!openFile) return;
+
+    setFile(openFile);
+    currentContent.current = openFile?.content ?? "";
+
+    const navFiles = navFilesRef.current;
+    navFilesRef.current = navFiles.some((file) => file.path === path) ? navFiles : [...navFiles, openFile];
+    setFileCount(navFilesRef?.current.length);
+  }
+
+  const handleFileClose = (closePath: string) => {
+    const navFiles = navFilesRef.current;
+    const remainingFiles = navFiles.filter((file) => file.path !== closePath);
+    navFilesRef.current = remainingFiles;
+    setFileCount(navFilesRef.current?.length);
+
+    if (closePath === path) {
+      const lastFile = remainingFiles.at(-1);
+      setPath(lastFile ? lastFile?.path : "");
+      setFile(lastFile ? lastFile : undefined);
     }
   }
 
   const getUpdatedFiles = async (value: string): Promise<void> => {
-    const currentFile = currentFilesRef.current?.find((file) => file.path === path);
+    const currentFile = currentFilesRef.current?.find((file: file) => file.path === path);
     if (!currentFile) return;
+
     const updatedFile: file = { ...currentFile, content: value };
     const restFiles = currentFilesRef.current?.filter((file) => file.path !== path) ?? [];
     const updatedFiles = [...restFiles, updatedFile];
@@ -69,45 +86,24 @@ const RevoirtEditor = () => {
     await put("files", updatedFiles);
   }
 
-  const refreshEditor = async (): Promise<void> => {
-    const openFile = currentFilesRef.current?.find((file: file) => file.path === path);
+  //Handler Functions
 
-    if (openFile) {
-      setFile(openFile);
-      getLineCount();
-      currentContent.current = openFile?.content ?? ""
-
-      const navFiles = navFilesRef.current;
-      navFilesRef.current = navFiles.some((file) => file.path === path) ? navFiles : [...navFiles, openFile]
-    }
-  }
-
-  const handleFileClose = (closePath: string) => {
-    const navFiles = navFilesRef.current;
-    const remainingFiles = navFiles.filter((file) => file.path !== closePath);
-    navFilesRef.current = remainingFiles;
-    setOpenFileCount(remainingFiles.length);
-
-    if (closePath === path) {
-      const lastFile = remainingFiles.at(-1);
-      setPath(lastFile ? lastFile?.path : "");
-    }
-  }
-
-  const handleEditorDidMount = (editor: Monaco) => {
+  //Editor onmount handle
+  const handleEditorDidMount = async (editor: Monaco) => {
     editorRef.current = editor;
     editor.focus();
-    getLineCount();
+    const count = editor?.getModel()?.getLineCount();
+    setLineCount(count);
   };
 
+  //Editor onchange handler
   const handleValueChange = async (value: string | undefined) => {
     if (value !== undefined) {
-      getLineCount()
       currentContent.current = value;
       getUpdatedFiles(value);
     }
   }
-
+  //Saves the updated file in IDB
   const updateFile = async (e: KeyboardEvent): Promise<void> => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
@@ -118,15 +114,12 @@ const RevoirtEditor = () => {
     }
   }
 
+  //Side Effects
+
   useEffect(() => {
+    if(!path) return;
     refreshEditor();
   }, [path]);
-
-  useEffect(() => {
-    if(!deletedPath) return;
-    handleFileClose(deletedPath);
-  }, [deletedPath]);
-
 
   useEffect(() => {
     if (!files) return;

@@ -50,3 +50,13 @@ export const useLineCount = create<lineCount>((set) => ({
     lineCount : 0 ,
     setLineCount : (next) => set({lineCount : next})
 }))
+
+type fileCount = {
+    fileCount : number , 
+    setFileCount : (next : number) => void
+}
+
+export const useFileCount = create<fileCount>((set) => ({
+    fileCount : 0 ,
+    setFileCount : (next) => set({fileCount : next})
+}))
