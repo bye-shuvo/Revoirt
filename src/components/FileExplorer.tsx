@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { deleteFile, executeIDB } from "./utils/useIDB.ts";
+import { deleteFile, executeIDB, getAllFiles } from "./utils/useIDB.ts";
 import { useDeletedFilePath, useFilePath, useFiles } from '../states/store.ts';
 import { get, put } from './utils/useSessionStorage.ts';
 
@@ -118,12 +118,17 @@ const FileExplorer = () => {
   const setDeletedPath = useDeletedFilePath((state) => state.setDeletedPath);
 
   const refreshFiles = async () => {
-    const files: file[] = await executeIDB(file);
-    setFiles(files);
-    try {
-      await get("files");
-    } catch {
+      const files: file[] = await executeIDB(file);
+      setFiles(files);
       await put("files", files);
+  }
+
+  const reloadFiles = async () => {
+    try {
+      const files: file[] = await get("files");
+      setFiles(files);
+    } catch {
+      await refreshFiles();
     }
   }
 
@@ -177,7 +182,7 @@ const FileExplorer = () => {
   }, [])
 
   useEffect(() => {
-    refreshFiles();
+    reloadFiles();
   }, []);
 
   return (
