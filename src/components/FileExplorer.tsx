@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { deleteFile, executeIDB, getAllFiles } from "./utils/useIDB.ts";
+import { deleteFile, executeIDB } from "./utils/useIDB.ts";
 import { useDeletedFilePath, useFilePath, useFiles } from '../states/store.ts';
 import { get, put } from './utils/useSessionStorage.ts';
 
