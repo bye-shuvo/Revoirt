@@ -38,11 +38,9 @@ const RevoirtEditor = () => {
     try {
       const stashFiles = await get("files"); //Data from session storage
       currentFilesRef.current = stashFiles;
-      console.log("This section did run stashfiles");
     } catch {
       if (files) { //Data from global storage
         currentFilesRef.current = files;
-        console.log("This section did run files");
       } else {
         console.error("Unexpected Errors Occured!!!");
       }
