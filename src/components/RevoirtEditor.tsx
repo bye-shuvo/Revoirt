@@ -74,6 +74,7 @@ const RevoirtEditor = () => {
     if (closePath === path) {
       const lastFile = remainingFiles.at(-1);
       setPath(lastFile ? lastFile?.path : "");
+      console.log(lastFile ? lastFile?.path : "");
       setFile(lastFile ? lastFile : undefined);
     }
   }
@@ -96,8 +97,16 @@ const RevoirtEditor = () => {
   const handleEditorDidMount = async (editor: Monaco) => {
     editorRef.current = editor;
     editor.focus();
-    const count = editor?.getModel()?.getLineCount();
-    setLineCount(count);
+
+    const updateLineCount = () => {
+      setLineCount(editor.getModel()?.getLineCount() ?? 0);
+    };
+    updateLineCount();
+
+    //editor event that runs / fires every time the monaco editor changes model / file changes
+
+    editor.onDidChangeModel(updateLineCount);
+    editor.onDidChangeModelContent(updateLineCount);
   };
 
   //Editor onchange handler
