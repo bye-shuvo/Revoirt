@@ -1,7 +1,8 @@
+import type {editor} from 'monaco-editor';
 import Editor, { type Monaco } from "@monaco-editor/react"
 import { useRef, useEffect, useState } from "react";
 
-import { useDeletedFilePath, useFileCount, useFilePath, useFiles, useLineCount } from "../states/store.ts";
+import { useCursorPosition, useDeletedFilePath, useFileCount, useFilePath, useFiles, useLineCount } from "../states/store.ts";
 import { putFile } from "./utils/useIDB.ts";
 import { get, put } from "./utils/useSessionStorage.ts";
 
@@ -33,6 +34,7 @@ const RevoirtEditor = () => {
   const deletedPath = useDeletedFilePath((state) => state.deletedPath);
   const fileCount = useFileCount((state) => state.fileCount); //Imported only to re render the UI
   const setFileCount = useFileCount((state) => state.setFileCount);
+  const setCursorPosition = useCursorPosition((state) => state.setCursorPosition);
 
   //Helper Functions
 
@@ -94,7 +96,7 @@ const RevoirtEditor = () => {
   //Handler Functions
 
   //Editor onmount handle
-  const handleEditorDidMount = async (editor: Monaco) => {
+  const handleEditorDidMount = async (editor: editor.IStandaloneCodeEditor) => {
     editorRef.current = editor;
     editor.focus();
 
@@ -107,6 +109,11 @@ const RevoirtEditor = () => {
 
     editor.onDidChangeModel(updateLineCount);
     editor.onDidChangeModelContent(updateLineCount);
+
+    //Current position of the cursor
+    editor.onDidChangeCursorPosition((e) => {
+      setCursorPosition({ln : e.position.lineNumber , col: e.position.column})
+    })
   };
 
   //Editor onchange handler

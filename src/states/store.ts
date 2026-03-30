@@ -60,3 +60,16 @@ export const useFileCount = create<fileCount>((set) => ({
     fileCount : 0 ,
     setFileCount : (next) => set({fileCount : next})
 }))
+
+type cursorPosition = {
+    cursorPosition : {
+        ln : number ,
+        col : number
+    }
+    setCursorPosition : (next : {ln : number , col : number}) => void;
+}
+
+export const useCursorPosition = create<cursorPosition>((set) => ({
+    cursorPosition : {ln : 1 , col : 1},
+    setCursorPosition : (next) => set({cursorPosition : next})
+}))
