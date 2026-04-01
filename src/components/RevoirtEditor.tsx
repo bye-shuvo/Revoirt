@@ -2,20 +2,9 @@ import type {editor} from 'monaco-editor';
 import Editor, { type Monaco } from "@monaco-editor/react"
 import { useRef, useEffect, useState } from "react";
 
-import { useCursorPosition, useDeletedFilePath, useFileCount, useFilePath, useFiles, useLineCount } from "../states/store.ts";
+import { useCursorPosition, useDeletedFilePath, useFileCount, useFilePath, useFiles, useLineCount , type file } from "../states/store.ts";
 import { putFile } from "./utils/useIDB.ts";
 import { get, put } from "./utils/useSessionStorage.ts";
-
-interface file {
-  path: string,  // primary key
-  name: string,
-  type: string,
-  extension: string,
-  parentPath: string,
-  content: string,
-  createdAt: number,
-  updatedAt: number,
-}
 
 const RevoirtEditor = () => {
   const [file, setFile] = useState<file>();
