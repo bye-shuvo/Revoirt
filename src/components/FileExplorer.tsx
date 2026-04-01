@@ -1,18 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { deleteFile, executeIDB } from "./utils/useIDB.ts";
-import { useDeletedFilePath, useFilePath, useFiles } from '../states/store.ts';
+import { useDeletedFilePath, useFilePath, useFiles , type file } from '../states/store.ts';
 import { get, put } from './utils/useSessionStorage.ts';
-
-interface file {
-  path: string;  // primary key
-  name: string;
-  type: string;
-  extension: string;
-  parentPath: string;
-  content: string;
-  createdAt: number;
-  updatedAt: number;
-}
 
 const monacoLanguages: Record<string, string> = {
   "abap": "abap",

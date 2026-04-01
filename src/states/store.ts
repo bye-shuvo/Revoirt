@@ -20,7 +20,7 @@ export const useDeletedFilePath = create<deletedPath>((set) => ({
     setDeletedPath : (next) => set({deletedPath : next})
 }))
 
-interface IDBfile {
+export interface file {
   path: string;  // primary key
   name: string;
   type: string;
@@ -32,8 +32,8 @@ interface IDBfile {
 }
 
 type files = {
-    files : IDBfile[] | undefined,
-    setFiles : (next : IDBfile[]) => void ;
+    files : file[] | undefined,
+    setFiles : (next : file[]) => void ;
 }
 
 export const useFiles = create<files>((set) => ({
