@@ -21,7 +21,7 @@ const RevoirtEditor = () => {
   const files = useFiles((state) => state.files);
   const setLineCount = useLineCount((state) => state.setLineCount);
   const deletedPath = useDeletedFilePath((state) => state.deletedPath);
-  const fileCount = useFileCount((state) => state.fileCount); //Imported only to re render the UI
+  useFileCount((state) => state.fileCount); //Imported only to re render the UI
   const setFileCount = useFileCount((state) => state.setFileCount);
   const setCursorPosition = useCursorPosition((state) => state.setCursorPosition);
 
