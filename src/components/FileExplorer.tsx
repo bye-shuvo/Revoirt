@@ -1,102 +1,19 @@
 import { useEffect, useState, useRef } from 'react';
 import { deleteFile, executeIDB } from "./utils/useIDB.ts";
-import { useDeletedFilePath, useFilePath, useFiles , type file } from '../states/store.ts';
-import { get, put } from './utils/useSessionStorage.ts';
+import { useDeletedFilePath, useFilePath, useFiles, type file } from '../states/store.ts';
+import { useSessionStorage } from './utils/useSessionStorage.ts';
+import { monacoLanguages } from './utils/monacoLanguages.ts';
 
-const monacoLanguages: Record<string, string> = {
-  "abap": "abap",
-  "apex": "apex",
-  "azcli": "azure cli",
-  "bat": "batch",
-  "bicep": "bicep",
-  "cameligo": "cameligo",
-  "clojure": "clojure",
-  "coffee": "coffeescript",
-  "cpp": "c++",
-  "cs": "c#",
-  "csp": "csp",
-  "css": "css",
-  "cypher": "cypher",
-  "dart": "dart",
-  "dockerfile": "dockerfile",
-  "ecl": "ecl",
-  "elixir": "elixir",
-  "flow9": "flow9",
-  "ftl": "freemarker",
-  "go": "go",
-  "graphql": "graphql",
-  "handlebars": "handlebars",
-  "hcl": "hcl",
-  "html": "html",
-  "ini": "ini",
-  "java": "java",
-  "javascript": "javascript",
-  "js": "javascript",
-  "jsx": "javascript",
-  "json": "json",
-  "json5": "json5",
-  "julia": "julia",
-  "kotlin": "kotlin",
-  "less": "less",
-  "lex": "lex",
-  "liquid": "liquid",
-  "lua": "lua",
-  "m3": "modula-3",
-  "markdown": "markdown",
-  "mdx": "mdx",
-  "mips": "mips assembly",
-  "msdax": "dax",
-  "mysql": "mysql",
-  "objective-c": "objective-c",
-  "pascal": "pascal",
-  "pascaligo": "pascaligo",
-  "perl": "perl",
-  "pgsql": "postgresql",
-  "php": "php",
-  "pla": "pla",
-  "postiats": "ats",
-  "powerquery": "power query",
-  "powershell": "powershell",
-  "proto": "protobuf",
-  "pug": "pug",
-  "python": "python",
-  "qsharp": "q#",
-  "r": "r",
-  "razor": "razor",
-  "redis": "redis",
-  "redshift": "redshift",
-  "restructuredtext": "restructuredtext",
-  "ruby": "ruby",
-  "rust": "rust",
-  "sb": "small basic",
-  "scala": "scala",
-  "scheme": "scheme",
-  "scss": "scss",
-  "shell": "shell",
-  "sol": "solidity",
-  "sparql": "sparql",
-  "sql": "sql",
-  "st": "structured text",
-  "swift": "swift",
-  "systemverilog": "systemverilog",
-  "tcl": "tcl",
-  "ts": "typescript",
-  "tsx": "typescript",
-  "twig": "twig",
-  "typescript": "typescript",
-  "typespec": "typespec",
-  "vb": "visual basic",
-  "verilog": "verilog",
-  "wgsl": "wgsl",
-  "xml": "xml",
-  "yaml": "yaml"
-};
 
 const FileExplorer = () => {
   const [isAddingNewFile, setIsAddingNewFile] = useState(false);
   const inputFile = useRef<HTMLLIElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const [file, setFile] = useState<file | undefined>(); //put new file
+
+
+  //SessionStorage Class Object
+  const sessionStorage = new useSessionStorage();
 
   //global states
   const path = useFilePath((state) => state.path);
@@ -107,14 +24,14 @@ const FileExplorer = () => {
   const setDeletedPath = useDeletedFilePath((state) => state.setDeletedPath);
 
   const refreshFiles = async () => {
-      const files: file[] = await executeIDB(file);
-      setFiles(files);
-      await put("files", files);
+    const files: file[] = await executeIDB(file);
+    setFiles(files);
+    await sessionStorage.put("files", files);
   }
 
   const reloadFiles = async () => {
     try {
-      const files: file[] = await get("files");
+      const files: file[] = await sessionStorage.get("files");
       setFiles(files);
     } catch {
       await refreshFiles();
