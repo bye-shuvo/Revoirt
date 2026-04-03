@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from "react";
 
 import { useCursorPosition, useDeletedFilePath, useFileCount, useFilePath, useFiles, useLineCount , type file } from "../states/store.ts";
 import { putFile } from "./utils/useIDB.ts";
-import { get, put } from "./utils/useSessionStorage.ts";
+import { useSessionStorage } from "./utils/useSessionStorage.ts";
 
 const RevoirtEditor = () => {
   const [file, setFile] = useState<file>();
@@ -14,6 +14,9 @@ const RevoirtEditor = () => {
   const currentContent = useRef<string>("");
   const navFilesRef = useRef<file[]>([]);
   const currentFilesRef = useRef<file[] | null>(null);
+
+  //SessionStorage Class Object
+  const sessionStorage = new useSessionStorage();
 
   //Global states
   const path = useFilePath((state) => state.path);
@@ -29,7 +32,7 @@ const RevoirtEditor = () => {
 
   const initializeFiles = async (): Promise<void> => {
     try {
-      const stashFiles = await get("files"); //Data from session storage
+      const stashFiles = await sessionStorage.get("files"); //Data from session storage
       currentFilesRef.current = stashFiles;
     } catch {
       if (files) { //Data from global storage
@@ -78,7 +81,7 @@ const RevoirtEditor = () => {
     const restFiles = currentFilesRef.current?.filter((file) => file.path !== path) ?? [];
     const updatedFiles = [...restFiles, updatedFile];
     currentFilesRef.current = updatedFiles;
-    await put("files", updatedFiles);
+    await sessionStorage.put("files", updatedFiles);
 
   }
 
