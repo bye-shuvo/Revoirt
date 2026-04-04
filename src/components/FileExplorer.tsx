@@ -9,12 +9,13 @@ const FileExplorer = () => {
   const [isAddingNewFile, setIsAddingNewFile] = useState(false);
   const [isRenamingFile, setIsRenamingFile] = useState(false);
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
+  const [renameValue , setRenameValue] = useState<string>("");
+  const [file, setFile] = useState<file | undefined>(); //put new file
+
   const inputFile = useRef<HTMLLIElement>(null);
   const renameFile = useRef<HTMLLIElement>(null);
-  const [renameValue , setRenameValue] = useState<string>("");
   const changableFileRef = useRef<file | undefined>(undefined);
   const contextMenuRef = useRef<HTMLDivElement>(null);
-  const [file, setFile] = useState<file | undefined>(); //put new file
 
 
   //SessionStorage Class Object
@@ -76,6 +77,8 @@ const FileExplorer = () => {
     if (!Array.from(renameFile.current?.children || []).includes(e.target as Element)) {
       await changeFileName();
       setDeletedPath("");
+      setRenameValue("");
+      setIsRenamingFile(false);
     }
   }
 
@@ -96,13 +99,17 @@ const FileExplorer = () => {
 
   //Handler Functions to change file name
 
-  const renameEventHandler = async (fileName: string) => {
+  const renameEventHandler = async (fileName: string , filePath: string) => {
+    if (!deletedPath) return;
     setIsRenamingFile(true);
     setIsContextMenuOpen(false);
-    if (!deletedPath) return;
-    changableFileRef.current = files?.find((file) => file?.path === deletedPath);
+
+    const freashFiles : file[] = await sessionStorage.get("files");
+    changableFileRef.current = freashFiles?.find((file) => file?.path === filePath);
+    
     await deleteFile(deletedPath);
     await refreshFiles();
+
     setRenameValue(fileName);
   }
 
@@ -132,13 +139,17 @@ const FileExplorer = () => {
   useEffect(() => {
     document.addEventListener("mousedown", createFileEvent);
     document.addEventListener("mousedown", deleteFileEvent);
-    document.addEventListener("mousedown", renameFileEvent);
     return () => {
       document.removeEventListener("mousedown", createFileEvent);
       document.removeEventListener("mousedown", deleteFileEvent);
-      document.removeEventListener("mousedown", renameFileEvent);
     }
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("mousedown", renameFileEvent);
+    return () => document.removeEventListener("mousedown", renameFileEvent);
+  } , [renameValue])
+
 
   useEffect(() => {
     reloadFiles();
@@ -157,7 +168,7 @@ const FileExplorer = () => {
               <svg className='h-6 w-6' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="rgb(255, 255, 255)" d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 234.5C512 217.5 505.3 201.2 493.3 189.2L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z" /></svg>
               {file.name}
               {
-                (isContextMenuOpen && deletedPath === file?.path) && <div ref={contextMenuRef} className='flex flex-col border border-slate-600 bg-[#181818] absolute z-10 w-7/8 p-2 rounded-sm'><button className='p-1 hover:bg-gray-700/50 rounded-sm' onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); renameEventHandler(file?.name) }}>Rename...</button>
+                (isContextMenuOpen && deletedPath === file?.path) && <div ref={contextMenuRef} className='flex flex-col border border-slate-600 bg-[#181818] absolute z-10 w-7/8 p-2 rounded-sm'><button className='p-1 hover:bg-gray-700/50 rounded-sm' onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); renameEventHandler(file?.name , file?.path) }}>Rename...</button>
                   <p className='w-full border-b border-slate-600'></p>
                   <button className='p-1 hover:bg-gray-700/50 rounded-sm' onMouseDown={(e) => { e.stopPropagation(); handleFileDelete(file?.path); }}>Delete</button>
                 </div>
