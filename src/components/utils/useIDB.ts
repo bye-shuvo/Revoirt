@@ -1,5 +1,7 @@
+import type { file } from "../../states/store";
+
 //Helper function to promisify the IDBRequest 
-const promisifyRequest = (request: IDBRequest):Promise<[]> => {
+const promisifyRequest = (request: IDBRequest): Promise<[]> => {
     return new Promise((resolve, reject) => {
         request.onerror = () => reject(request.error);
         request.onsuccess = () => resolve(request.result);
@@ -40,7 +42,7 @@ export const putFile = async (file: object) => {
     })
 }
 
-export const getAllFiles = async ():Promise<[]> => {
+export const getAllFiles = async (): Promise<[]> => {
     const db = await openDB();
 
     const tx = db.transaction("files", "readwrite");
@@ -49,22 +51,22 @@ export const getAllFiles = async ():Promise<[]> => {
     return await promisifyRequest(store.getAll());
 }
 
-export const deleteFile = async (path : string) => {
+export const deleteFile = async (path: string) => {
     const db = await openDB();
 
-    const tx = db.transaction("files" , "readwrite");
+    const tx = db.transaction("files", "readwrite");
     const store = tx.objectStore("files");
 
     await promisifyRequest(store.delete(path));
 
-    await new Promise((resolve , reject) => {
+    await new Promise((resolve, reject) => {
         tx.onerror = () => reject(tx.error);
         tx.onabort = () => reject(tx.error);
         tx.oncomplete = () => resolve(tx.db);
     })
 }
 
-export const executeIDB = async (file: any) : Promise<[]> => {
+export const executeIDB = async (file: file | undefined): Promise<[]> => {
     try {
         const indexedDB = window.indexedDB;
         if (!indexedDB) {

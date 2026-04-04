@@ -7,7 +7,12 @@ import { monacoLanguages } from './utils/monacoLanguages.ts';
 
 const FileExplorer = () => {
   const [isAddingNewFile, setIsAddingNewFile] = useState(false);
+  const [isRenamingFile, setIsRenamingFile] = useState(false);
+  const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const inputFile = useRef<HTMLLIElement>(null);
+  const renameFile = useRef<HTMLLIElement>(null);
+  const [renameValue , setRenameValue] = useState<string>("");
+  const changableFileRef = useRef<file | undefined>(undefined);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const [file, setFile] = useState<file | undefined>(); //put new file
 
@@ -67,6 +72,13 @@ const FileExplorer = () => {
     }
   }
 
+  const renameFileEvent = async (e: any): Promise<void> => {
+    if (!Array.from(renameFile.current?.children || []).includes(e.target as Element)) {
+      await changeFileName();
+      setDeletedPath("");
+    }
+  }
+
   const createFile = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === "Enter") {
       refreshFiles();
@@ -81,10 +93,51 @@ const FileExplorer = () => {
     setDeletedPath("");
   }
 
+
+  //Handler Functions to change file name
+
+  const renameEventHandler = async (fileName: string) => {
+    setIsRenamingFile(true);
+    setIsContextMenuOpen(false);
+    if (!deletedPath) return;
+    changableFileRef.current = files?.find((file) => file?.path === deletedPath);
+    await deleteFile(deletedPath);
+    await refreshFiles();
+    setRenameValue(fileName);
+  }
+
+  const changeFileName = async (): Promise<file | undefined> => {
+    if (!changableFileRef.current) return;
+
+    const newName: string = renameValue?.trim();
+    const newPath: string = `src/${newName}`;
+    const newExtension = newName.split(".").pop() ?? "";
+    const newType = monacoLanguages[newExtension];
+    const updatedFile = { ...changableFileRef.current, name: newName, path: newPath, type: newType, extension: newExtension , updatedAt : Date.now() };
+    const updatedFiles: file[] = await executeIDB(updatedFile);
+    setFiles(updatedFiles);
+    await sessionStorage.put("files", updatedFiles);
+    changableFileRef.current = undefined;
+  }
+
+  const handleFileNameChange = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      await changeFileName();
+      setIsRenamingFile(false);
+    }
+  }
+
+
+  //Side Effect perform functions
   useEffect(() => {
     document.addEventListener("mousedown", createFileEvent);
     document.addEventListener("mousedown", deleteFileEvent);
-    return () => { document.removeEventListener("mousedown", createFileEvent); document.removeEventListener("mousedown", deleteFileEvent) }
+    document.addEventListener("mousedown", renameFileEvent);
+    return () => {
+      document.removeEventListener("mousedown", createFileEvent);
+      document.removeEventListener("mousedown", deleteFileEvent);
+      document.removeEventListener("mousedown", renameFileEvent);
+    }
   }, [])
 
   useEffect(() => {
@@ -100,13 +153,13 @@ const FileExplorer = () => {
         {
           files?.map((file: file) => {
             return <li key={file.path} onClick={() => setPath(file.path)}
-              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setDeletedPath(file?.path) }} className={`flex gap-2 text-[1rem] cursor-pointer hover:bg-gray-500/50 p-2 relative text-white ${file?.path === path ? "bg-[#222222]" : ""}`} >
+              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setDeletedPath(file?.path); setIsContextMenuOpen(true) }} className={`flex gap-2 text-[1rem] cursor-pointer hover:bg-gray-500/50 p-2 relative text-white ${file?.path === path ? "bg-[#222222]" : ""}`} >
               <svg className='h-6 w-6' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="rgb(255, 255, 255)" d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 234.5C512 217.5 505.3 201.2 493.3 189.2L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z" /></svg>
               {file.name}
               {
-                (deletedPath === file?.path) && <div ref={contextMenuRef} className='flex flex-col border border-slate-600 bg-[#181818] absolute z-10 w-7/8 p-2 rounded-sm'><button className='p-1 hover:bg-gray-700/50 rounded-sm' onClick={(e) => { e.stopPropagation(); }}>Rename...</button>
+                (isContextMenuOpen && deletedPath === file?.path) && <div ref={contextMenuRef} className='flex flex-col border border-slate-600 bg-[#181818] absolute z-10 w-7/8 p-2 rounded-sm'><button className='p-1 hover:bg-gray-700/50 rounded-sm' onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); renameEventHandler(file?.name) }}>Rename...</button>
                   <p className='w-full border-b border-slate-600'></p>
-                  <button className='p-1 hover:bg-gray-700/50 rounded-sm' onClick={(e) => { e.stopPropagation(); handleFileDelete(file?.path); }}>Delete</button>
+                  <button className='p-1 hover:bg-gray-700/50 rounded-sm' onMouseDown={(e) => { e.stopPropagation(); handleFileDelete(file?.path); }}>Delete</button>
                 </div>
               }
             </li>
@@ -116,6 +169,12 @@ const FileExplorer = () => {
           isAddingNewFile && <li ref={inputFile} className='flex gap-2 text-[1rem] cursor-text p-2 items-center'>
             <svg className='h-6 w-6' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="rgb(255, 255, 255)" d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 234.5C512 217.5 505.3 201.2 493.3 189.2L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z" /></svg>
             <input onChange={handleFileChange} onKeyDown={createFile} autoFocus={true} className='w-fit text-[1rem] border rounded-sm outline-none border-blue-400 text-white placeholder:text-white py-0.5' type="text" />
+          </li>
+        }
+        {
+          isRenamingFile && <li ref={renameFile} className='flex gap-2 text-[1rem] cursor-text p-2 items-center'>
+            <svg className='h-6 w-6' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="rgb(255, 255, 255)" d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 234.5C512 217.5 505.3 201.2 493.3 189.2L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z" /></svg>
+            <input value={renameValue} onChange={(e) => { setRenameValue(e.target.value) }} onKeyDown={handleFileNameChange} autoFocus={true} className='w-fit text-[1rem] border rounded-sm outline-none border-blue-400 text-white placeholder:text-white py-0.5' type="text" />
           </li>
         }
       </ul>
