@@ -115,6 +115,7 @@ const FileExplorer = () => {
 
   const changeFileName = async (): Promise<file | undefined> => {
     if (!changableFileRef.current) return;
+    if(!renameValue) return;
 
     const newName: string = renameValue?.trim();
     const newPath: string = `src/${newName}`;
