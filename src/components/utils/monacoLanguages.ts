@@ -75,6 +75,7 @@ export const monacoLanguages: Record<string, string> = {
   "swift": "swift",
   "systemverilog": "systemverilog",
   "tcl": "tcl",
+  "txt" : "txt", 
   "ts": "typescript",
   "tsx": "typescript",
   "twig": "twig",
