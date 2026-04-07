@@ -9,7 +9,7 @@ const FileExplorer = () => {
   const [isAddingNewFile, setIsAddingNewFile] = useState(false);
   const [isRenamingFile, setIsRenamingFile] = useState(false);
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
-  const [renameValue , setRenameValue] = useState<string>("");
+  const [renameValue, setRenameValue] = useState<string>("");
   const [file, setFile] = useState<file | undefined>(); //put new file
 
   const inputFile = useRef<HTMLLIElement>(null);
@@ -99,14 +99,14 @@ const FileExplorer = () => {
 
   //Handler Functions to change file name
 
-  const renameEventHandler = async (fileName: string , filePath: string) => {
+  const renameEventHandler = async (fileName: string, filePath: string) => {
     if (!deletedPath || !fileName.trim()) return;
     setIsRenamingFile(true);
     setIsContextMenuOpen(false);
 
-    const freashFiles : file[] = await sessionStorage.get("files");
+    const freashFiles: file[] = await sessionStorage.get("files");
     changableFileRef.current = freashFiles?.find((file) => file?.path === filePath);
-    
+
     await deleteFile(deletedPath);
     await refreshFiles();
 
@@ -115,13 +115,21 @@ const FileExplorer = () => {
 
   const changeFileName = async (): Promise<file | undefined> => {
     if (!changableFileRef.current) return;
-    if(!renameValue.trim()) return;
+    let newName : string;
+    let newPath : string;
 
-    const newName: string = renameValue?.trim();
-    const newPath: string = `src/${newName}`;
+    if (!renameValue.trim()) {
+      newName = "Undefined"
+      newPath = `src/${newName}`;
+    }
+    else{
+      newName = renameValue?.trim();
+      newPath = `src/${newName}`;
+    }
+    
     const newExtension = newName.split(".").pop() ?? "";
     const newType = monacoLanguages[newExtension];
-    const updatedFile = { ...changableFileRef.current, name: newName, path: newPath, type: newType, extension: newExtension , updatedAt : Date.now() };
+    const updatedFile = { ...changableFileRef.current, name: newName, path: newPath, type: newType, extension: newExtension, updatedAt: Date.now() };
     const updatedFiles: file[] = await executeIDB(updatedFile);
     setFiles(updatedFiles);
     await sessionStorage.put("files", updatedFiles);
@@ -129,6 +137,7 @@ const FileExplorer = () => {
   }
 
   const handleFileNameChange = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     if (e.key === 'Enter') {
       await changeFileName();
       setIsRenamingFile(false);
@@ -149,7 +158,7 @@ const FileExplorer = () => {
   useEffect(() => {
     document.addEventListener("mousedown", renameFileEvent);
     return () => document.removeEventListener("mousedown", renameFileEvent);
-  } , [renameValue])
+  }, [renameValue])
 
 
   useEffect(() => {
@@ -169,7 +178,7 @@ const FileExplorer = () => {
               <svg className='h-6 w-6' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path fill="rgb(255, 255, 255)" d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 234.5C512 217.5 505.3 201.2 493.3 189.2L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z" /></svg>
               {file.name}
               {
-                (isContextMenuOpen && deletedPath === file?.path) && <div ref={contextMenuRef} className='flex flex-col border border-slate-600 bg-[#181818] absolute z-10 w-7/8 p-2 rounded-sm'><button className='p-1 hover:bg-gray-700/50 rounded-sm' onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); renameEventHandler(file?.name , file?.path) }}>Rename...</button>
+                (isContextMenuOpen && deletedPath === file?.path) && <div ref={contextMenuRef} className='flex flex-col border border-slate-600 bg-[#181818] absolute z-10 w-7/8 p-2 rounded-sm'><button className='p-1 hover:bg-gray-700/50 rounded-sm' onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); renameEventHandler(file?.name, file?.path) }}>Rename...</button>
                   <p className='w-full border-b border-slate-600'></p>
                   <button className='p-1 hover:bg-gray-700/50 rounded-sm' onMouseDown={(e) => { e.stopPropagation(); handleFileDelete(file?.path); }}>Delete</button>
                 </div>
