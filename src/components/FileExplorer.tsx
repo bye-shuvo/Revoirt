@@ -100,7 +100,7 @@ const FileExplorer = () => {
   //Handler Functions to change file name
 
   const renameEventHandler = async (fileName: string , filePath: string) => {
-    if (!deletedPath) return;
+    if (!deletedPath || !fileName.trim()) return;
     setIsRenamingFile(true);
     setIsContextMenuOpen(false);
 
@@ -115,7 +115,7 @@ const FileExplorer = () => {
 
   const changeFileName = async (): Promise<file | undefined> => {
     if (!changableFileRef.current) return;
-    if(!renameValue) return;
+    if(!renameValue.trim()) return;
 
     const newName: string = renameValue?.trim();
     const newPath: string = `src/${newName}`;
