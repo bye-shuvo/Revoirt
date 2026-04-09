@@ -16,7 +16,7 @@ const RevoirtTerminal = () => {
 
   const inputBuffer = useRef<string>("");
 
-  const writePromt = () => {
+  const writePrompt = () => {
     termRef.current?.write("\r\n" + PROMPT);
   }
 
@@ -27,30 +27,31 @@ const RevoirtTerminal = () => {
     const cmd = command.trim();
 
     if(!cmd){
-      writePromt();
+      writePrompt();
       return;
     }
 
     if(cmd === "clear" || cmd === "cls" || cmd === "clc"){
       term.write("\x1b[2J\x1b[H");
       term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m');
-      writePromt();
+      writePrompt();
       return;
     }
 
     if(cmd === "help"){
       term.write("\r\n\x1b[36mavailable commands:\x1b[0m clear, help");
-      writePromt();
+      writePrompt();
       return;
     }
 
     if(cmd === "exit"){
-      term.write("\x1b[2J\x1b[H");
+      writePrompt();
       setCloseTerm(true);
+      return;
     }
 
   term.write(`\r\n\x1b[31mcommand not found:\x1b[0m ${cmd}`);
-  writePromt();
+  writePrompt();
   }
 
   useEffect(() => {
@@ -81,7 +82,7 @@ const RevoirtTerminal = () => {
 
     term.open(terminalElementRef.current);
     term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m');
-    writePromt();
+    writePrompt();
 
     term.onData((data) => {
       switch (data) {
@@ -106,7 +107,7 @@ const RevoirtTerminal = () => {
         case "\x03" : {
           inputBuffer.current = "" ;
           term.write("^C");
-          writePromt();
+          writePrompt();
           break;
         }
 
@@ -114,7 +115,7 @@ const RevoirtTerminal = () => {
         case "\x0c" : {
           term.clear();
           term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m');
-          writePromt();
+          writePrompt();
           break;
         }
 
