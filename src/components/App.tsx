@@ -1,7 +1,8 @@
+import { lazy } from "react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 import FileExplorer from "./FileExplorer";
-import RevoirtTerminal from "./RevoirtTerminal";
+const RevoirtTerminal = lazy(() => import("./RevoirtTerminal"));
 import Navigation from "./Navigation";
 import RevoirtEditor from "./RevoirtEditor";
 import Tooltip from "./Tooltip";
