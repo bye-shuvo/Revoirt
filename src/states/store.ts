@@ -73,3 +73,14 @@ export const useCursorPosition = create<cursorPosition>((set) => ({
     cursorPosition : {ln : 1 , col : 1},
     setCursorPosition : (next) => set({cursorPosition : next})
 }))
+
+
+type closeTerm = {
+    closeTerm : boolean
+    setCloseTerm : (next : boolean) =>  void ;
+}
+
+export const useCloseTerm = create<closeTerm>((set) => ({
+ closeTerm : false ,
+ setCloseTerm : (next) => set({closeTerm : next})
+}))
