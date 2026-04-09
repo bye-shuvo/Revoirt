@@ -4,9 +4,8 @@ import { Terminal } from "@xterm/xterm"
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import "@xterm/xterm/css/xterm.css";
-import { data } from "react-router";
 
-const PROMPT = "\x1b[1;32m❯\x1b[0m "; // green ❯ prompt
+const PROMPT = "\x1B[1;3;31mRevoirt \x1B[0m\x1b[1;32m❯\x1b[0m "; // green ❯ prompt
 
 const RevoirtTerminal = () => {
   const terminalElementRef = useRef<HTMLDivElement>(null);
@@ -29,7 +28,7 @@ const RevoirtTerminal = () => {
       return;
     }
 
-    if(cmd === "clear"){
+    if(cmd === "clear" || "cls" || "clc"){
       term.write("\x1b[2J\x1b[H");
       term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m');
       writePromt();
@@ -40,7 +39,11 @@ const RevoirtTerminal = () => {
       term.write("\r\n\x1b[36mavailable commands:\x1b[0m clear, help");
       writePromt();
       return;
-    } 
+    }
+
+    if(cmd === "exit"){
+      term.write("\x1b[2J\x1b[H");
+    }
 
   term.write(`\r\n\x1b[31mcommand not found:\x1b[0m ${cmd}`);
   writePromt();
@@ -73,7 +76,7 @@ const RevoirtTerminal = () => {
     term.loadAddon(webLinksAddon);
 
     term.open(terminalElementRef.current);
-    term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m $ ');
+    term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m');
     writePromt();
 
     term.onData((data) => {
@@ -125,7 +128,7 @@ const RevoirtTerminal = () => {
 
   return (
     <div ref={terminalElementRef} className="bg-[#181818] w-full h-full border-t border-t-gray-600 p-5">
-
+      
     </div>
   )
 }
