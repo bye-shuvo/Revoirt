@@ -4,12 +4,15 @@ import { Terminal } from "@xterm/xterm"
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import "@xterm/xterm/css/xterm.css";
+import { useCloseTerm } from "../states/store";
 
 const PROMPT = "\x1B[1;3;31mRevoirt \x1B[0m\x1b[1;32m❯\x1b[0m "; // green ❯ prompt
 
 const RevoirtTerminal = () => {
   const terminalElementRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<Terminal>(null);
+
+  const setCloseTerm = useCloseTerm((state) => state.setCloseTerm);
 
   const inputBuffer = useRef<string>("");
 
@@ -28,7 +31,7 @@ const RevoirtTerminal = () => {
       return;
     }
 
-    if(cmd === "clear" || "cls" || "clc"){
+    if(cmd === "clear" || cmd === "cls" || cmd === "clc"){
       term.write("\x1b[2J\x1b[H");
       term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m');
       writePromt();
@@ -43,6 +46,7 @@ const RevoirtTerminal = () => {
 
     if(cmd === "exit"){
       term.write("\x1b[2J\x1b[H");
+      setCloseTerm(true);
     }
 
   term.write(`\r\n\x1b[31mcommand not found:\x1b[0m ${cmd}`);
@@ -128,7 +132,7 @@ const RevoirtTerminal = () => {
 
   return (
     <div ref={terminalElementRef} className="bg-[#181818] w-full h-full border-t border-t-gray-600 p-5">
-      
+
     </div>
   )
 }
