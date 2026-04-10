@@ -47,6 +47,7 @@ const RevoirtTerminal = () => {
     if(cmd === "exit"){
       writePrompt();
       setCloseTerm(true);
+      term.blur();
       return;
     }
 
@@ -83,6 +84,7 @@ const RevoirtTerminal = () => {
     term.open(terminalElementRef.current);
     term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m');
     writePrompt();
+    term.focus();
 
     term.onData((data) => {
       switch (data) {

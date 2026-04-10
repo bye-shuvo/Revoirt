@@ -81,6 +81,6 @@ type closeTerm = {
 }
 
 export const useCloseTerm = create<closeTerm>((set) => ({
- closeTerm : false ,
+ closeTerm : true ,
  setCloseTerm : (next) => set({closeTerm : next})
 }))
