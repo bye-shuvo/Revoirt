@@ -1,27 +1,32 @@
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useEffect, useRef } from "react";
+import { useCloseTerm } from "../../states/store";
 
-export const useTerminalShortcut = (termPanelRef: React.RefObject<PanelImperativeHandle | null>, closeTerm: boolean) => {
+export const useTerminalShortcut = (termPanelRef: React.RefObject<PanelImperativeHandle | null>) => {
+    
+    const closeTerm = useCloseTerm((state) => state.closeTerm);
+    const setCloseTerm = useCloseTerm((state) => state.setCloseTerm);
 
-    const isTermOpen = useRef(false);
+    const closeTermRef = useRef(closeTerm);
+
+    useEffect(() => {
+        closeTermRef.current = closeTerm ;
+        console.log(closeTermRef.current);
+    } ,[closeTerm])
 
     useEffect(() => {
         const handleTerminalOpen = (e: KeyboardEvent) => {
             e.stopPropagation();
-
             if ((e.ctrlKey || e.metaKey) && e.key === '`') {
                 e.preventDefault();
-
-                if(isTermOpen.current){
+                if(closeTermRef.current){
                     termPanelRef.current?.collapse();
-                    isTermOpen.current = false ;
-                    return ;
+                    setCloseTerm(false);
                 }
                 else{
                     termPanelRef.current?.expand();
-                    isTermOpen.current = true;
+                    setCloseTerm(true);
                 }
-
             }
         }
         document.addEventListener("keydown", handleTerminalOpen);
