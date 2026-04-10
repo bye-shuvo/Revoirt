@@ -12,6 +12,7 @@ const RevoirtTerminal = () => {
   const terminalElementRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<Terminal>(null);
 
+  const closeTerm = useCloseTerm((state) => state.closeTerm);
   const setCloseTerm = useCloseTerm((state) => state.setCloseTerm);
 
   const inputBuffer = useRef<string>("");
@@ -47,7 +48,6 @@ const RevoirtTerminal = () => {
     if(cmd === "exit"){
       writePrompt();
       setCloseTerm(true);
-      term.blur();
       return;
     }
 
@@ -132,6 +132,12 @@ const RevoirtTerminal = () => {
 
     return () => {term.dispose()};
   }, [])
+
+  useEffect(() => {
+    if(closeTerm){
+      termRef.current?.blur();
+    }
+  } , [closeTerm])
 
   return (
     <div ref={terminalElementRef} className="bg-[#181818] w-full h-full border-t border-t-gray-600 p-5">
