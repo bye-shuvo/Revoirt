@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Group, Panel, Separator , usePanelRef} from "react-resizable-panels";
+import { Group, Panel, Separator , usePanelRef, type PanelSize} from "react-resizable-panels";
 
 import FileExplorer from "./FileExplorer";
 const RevoirtTerminal = lazy(() => import("./RevoirtTerminal"));
@@ -7,10 +7,12 @@ import Navigation from "./Navigation";
 import RevoirtEditor from "./RevoirtEditor";
 import Tooltip from "./Tooltip";
 import { useTerminalShortcut } from "./utils/useTerminalShortcut";
+import { useCloseTerm } from "../states/store";
 
 const App = () => { 
   const termPanelRef = usePanelRef();
   useTerminalShortcut(termPanelRef);
+  const setCloseTerm = useCloseTerm((state) => state.setCloseTerm);
 
   return (
     <main className="h-screen w-screen flex flex-col justify-end">
@@ -35,7 +37,16 @@ const App = () => {
             <Panel id="editor" defaultSize={"100%"}>
               <RevoirtEditor />
             </Panel>
-            <Panel id="terminal" panelRef={termPanelRef} collapsible collapsedSize={0} defaultSize={0} minSize={"30%"} maxSize={"74%"}>
+            <Panel id="terminal" 
+            panelRef={termPanelRef} 
+            collapsible 
+            collapsedSize={0} 
+            defaultSize={0} 
+            minSize={"30%"} 
+            maxSize={"74%"} 
+            onResize={(panelSize : PanelSize) => {
+              (panelSize.inPixels === 0) ? setCloseTerm(true) : setCloseTerm(false) ;
+            }}>
               <Suspense fallback={null}>
                 <RevoirtTerminal/>
               </Suspense>
