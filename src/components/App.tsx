@@ -42,7 +42,7 @@ const App = () => {
             collapsible 
             collapsedSize={0} 
             defaultSize={0} 
-            minSize={"30%"} 
+            minSize={"40%"} 
             maxSize={"74%"} 
             onResize={(panelSize : PanelSize) => {
               (panelSize.inPixels === 0) ? setCloseTerm(true) : setCloseTerm(false) ;
