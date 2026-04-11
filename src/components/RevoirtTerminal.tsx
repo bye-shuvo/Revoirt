@@ -4,21 +4,34 @@ import { Terminal } from "@xterm/xterm"
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import "@xterm/xterm/css/xterm.css";
-import { useCloseTerm } from "../states/store";
+import { useCloseTerm , useFiles } from "../states/store.ts";
 
-const PROMPT = "\x1B[1;3;31mRevoirt \x1B[0m\x1b[1;32m❯\x1b[0m "; // green ❯ prompt
+const PROMPT = "\x1B[1;3;37mRevoirt \x1B[0m\x1b[37m>\x1b[0m "; // green ❯ prompt
 
 const RevoirtTerminal = () => {
   const terminalElementRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<Terminal>(null);
+  const fileNames = useRef<string[] | undefined>(null);
 
   const closeTerm = useCloseTerm((state) => state.closeTerm);
   const setCloseTerm = useCloseTerm((state) => state.setCloseTerm);
+  const files = useFiles((state) => state.files);
 
   const inputBuffer = useRef<string>("");
 
   const writePrompt = () => {
     termRef.current?.write("\r\n" + PROMPT);
+  }
+  const initialRenderPrompt = () => {
+    termRef.current?.write(`
+\t\t\t░█████████                                   ░██            ░██    
+\t\t\t░██     ░██                                                 ░██    
+\t\t\t░██     ░██  ░███████  ░██    ░██  ░███████  ░██ ░██░████ ░████████ 
+\t\t\t░█████████  ░██    ░██ ░██    ░██ ░██    ░██ ░██ ░███        ░██    
+\t\t\t░██   ░██   ░█████████  ░██  ░██  ░██    ░██ ░██ ░██         ░██    
+\t\t\t░██    ░██  ░██          ░██░██   ░██    ░██ ░██ ░██         ░██    
+\t\t\t░██     ░██  ░███████     ░███     ░███████  ░██ ░██         ░████ 
+\n\t\t\t \x1b[38;5;208m --- A Collaborative Code Editor\x1b[0m\n`)
   }
 
   const handleCommand = (command : string) => {
@@ -34,13 +47,13 @@ const RevoirtTerminal = () => {
 
     if(cmd === "clear" || cmd === "cls" || cmd === "clc"){
       term.write("\x1b[2J\x1b[H");
-      term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m');
+      initialRenderPrompt();
       writePrompt();
       return;
     }
 
-    if(cmd === "help"){
-      term.write("\r\n\x1b[36mavailable commands:\x1b[0m clear, help");
+    if(cmd === "help" || cmd === "--h"){
+      term.write("\r\n\x1b[42m\tAvailable commands:\x1b[0m \n\t 1.clear \n\t 2.help or --h \n\t 3.exit \n\t 4.--version or --v \n\t 5.files or --f\n");
       writePrompt();
       return;
     }
@@ -51,7 +64,23 @@ const RevoirtTerminal = () => {
       return;
     }
 
-  term.write(`\r\n\x1b[31mcommand not found:\x1b[0m ${cmd}`);
+    if(cmd === "version" || cmd === "--v"){
+      term.write(`\n\x1b[46m\tRevoirt Terminal 1.0.0\x1b[0m\n`);
+      writePrompt();
+      return;
+    }
+
+    if(cmd === "files" || cmd === "--f"){
+      term.write(`\n\x1b[45m\tRevoirt File Explorer:\x1b[0m`);
+      fileNames.current?.map((name , index) => {
+        term.write(`\n\t\x1b[37m${index+1}. ${name}\x1b[0m`);
+      })
+      term.write(`\n`);
+      writePrompt();
+      return;
+    }
+
+  term.write(`\r\n\x1b[41m\tCommand not found:\x1b[0m ${cmd} \n`);
   writePrompt();
   }
 
@@ -82,7 +111,7 @@ const RevoirtTerminal = () => {
     term.loadAddon(webLinksAddon);
 
     term.open(terminalElementRef.current);
-    term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m');
+    initialRenderPrompt();
     writePrompt();
     term.focus();
 
@@ -115,8 +144,7 @@ const RevoirtTerminal = () => {
 
         // Ctrl+L — clear screen
         case "\x0c" : {
-          term.clear();
-          term.write('Hello from \x1B[1;3;31mRevoirt\x1B[0m');
+          term.write('Hello from \x1B[1;3;32mRevoirt\x1B[0m');
           writePrompt();
           break;
         }
@@ -138,6 +166,12 @@ const RevoirtTerminal = () => {
       termRef.current?.blur();
     }
   } , [closeTerm])
+
+  useEffect(() => {
+    fileNames.current = files?.map((file) => {
+      return file.name ;
+    })
+  } , [files])
 
   return (
     <div ref={terminalElementRef} className="bg-[#181818] w-full h-full border-t border-t-gray-600 p-5">
