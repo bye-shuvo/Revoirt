@@ -155,8 +155,8 @@ const RevoirtEditor = () => {
           <h2 className="text-xl border border-gray-400 p-2">Code Together | Build Fast</h2>
           <p className="text-2xl text-white">Create a new file to get started !!!</p>
         </div> :
-          <div className="h-full text-white">
-            <nav className="border-b border-gray-600 h-[7%] bg-[#181818]">
+          <div className="h-full text-white no-scrollbar">
+            <nav className="border-b border-gray-600 h-14 bg-[#181818]">
               <ul className="h-full w-full flex">
                 {
                   navFilesRef.current?.map((file, index) => {
@@ -166,7 +166,7 @@ const RevoirtEditor = () => {
               </ul>
             </nav>
             <Editor
-              height="100%"
+              height="calc(100% - 3.5rem)"
               language={file?.type}
               value={currentContent.current}
               theme="vs-dark"
