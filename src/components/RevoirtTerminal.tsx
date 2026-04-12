@@ -53,7 +53,7 @@ const RevoirtTerminal = () => {
     }
 
     if(cmd === "help" || cmd === "--h"){
-      term.write("\r\n\x1b[42m\tAvailable commands:\x1b[0m \n\t 1.clear \n\t 2.help or --h \n\t 3.exit \n\t 4.--version or --v \n\t 5.files or --f\n");
+      term.write("\r\n\x1b[42m\tAvailable commands:\x1b[0m \n\t 1.clear \n\t 2.help or --h \n\t 3.exit \n\t 4.version or --v \n\t 5.files or --f\n");
       writePrompt();
       return;
     }
@@ -104,12 +104,17 @@ const RevoirtTerminal = () => {
 
     const fitAddon = new FitAddon();
     const webLinksAddon = new WebLinksAddon();
-
+    
     const term = termRef.current ;
-
+    
     term.loadAddon(fitAddon);
     term.loadAddon(webLinksAddon);
 
+    fitAddon.fit();
+
+    const ro = new ResizeObserver(() => { requestAnimationFrame(() => {fitAddon.fit})});
+    ro.observe(terminalElementRef.current);
+    
     term.open(terminalElementRef.current);
     initialRenderPrompt();
     writePrompt();
@@ -158,7 +163,7 @@ const RevoirtTerminal = () => {
       }
     });
 
-    return () => {term.dispose()};
+    return () => {term.dispose(); ro.disconnect()};
   }, [])
 
   useEffect(() => {
@@ -174,7 +179,7 @@ const RevoirtTerminal = () => {
   } , [files])
 
   return (
-    <div ref={terminalElementRef} className="bg-[#181818] w-full h-full border-t border-t-gray-600 p-5">
+    <div ref={terminalElementRef} className="bg-[#181818] w-full h-full border-t border-t-gray-600 p-5 no-scrollbar overflow-y-scroll">
 
     </div>
   )
