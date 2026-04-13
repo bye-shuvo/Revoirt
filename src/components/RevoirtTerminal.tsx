@@ -4,7 +4,8 @@ import { Terminal } from "@xterm/xterm"
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import "@xterm/xterm/css/xterm.css";
-import { useCloseTerm , useFiles } from "../states/store.ts";
+import { useCloseTerm, useFiles, useFilePath } from "../states/store.ts";
+import { runCurrentFile } from "./utils/runtimes/javascriptRuntime.ts";
 
 const PROMPT = "\x1B[1;3;37mRevoirt \x1B[0m\x1b[37m>\x1b[0m "; // green ❯ prompt
 
@@ -16,6 +17,9 @@ const RevoirtTerminal = () => {
   const closeTerm = useCloseTerm((state) => state.closeTerm);
   const setCloseTerm = useCloseTerm((state) => state.setCloseTerm);
   const files = useFiles((state) => state.files);
+  const path = useFilePath((state) => state.path);
+  const filesRef = useRef(files);
+  const pathRef = useRef(path);
 
   const inputBuffer = useRef<string>("");
 
@@ -34,54 +38,61 @@ const RevoirtTerminal = () => {
 \n\t\t\t \x1b[38;5;208m --- A Collaborative Code Editor\x1b[0m\n`)
   }
 
-  const handleCommand = (command : string) => {
+
+  const handleCommand = (command: string) => {
     const term = termRef.current;
-    if(!term) return ;
+    if (!term) return;
 
     const cmd = command.trim();
 
-    if(!cmd){
+    if (!cmd) {
       writePrompt();
       return;
     }
 
-    if(cmd === "clear" || cmd === "cls" || cmd === "clc"){
+    if (cmd === "clear" || cmd === "cls" || cmd === "clc") {
       term.write("\x1b[2J\x1b[H");
       initialRenderPrompt();
       writePrompt();
       return;
     }
 
-    if(cmd === "help" || cmd === "--h"){
+    if (cmd === "help" || cmd === "--h") {
       term.write("\r\n\x1b[42m\tAvailable commands:\x1b[0m \n\t 1.clear \n\t 2.help or --h \n\t 3.exit \n\t 4.version or --v \n\t 5.files or --f\n");
       writePrompt();
       return;
     }
 
-    if(cmd === "exit"){
+    if (cmd === "exit") {
       writePrompt();
       setCloseTerm(true);
       return;
     }
 
-    if(cmd === "version" || cmd === "--v"){
+    if (cmd === "version" || cmd === "--v") {
       term.write(`\n\x1b[46m\tRevoirt Terminal 1.0.0\x1b[0m\n`);
       writePrompt();
       return;
     }
 
-    if(cmd === "files" || cmd === "--f"){
+    if (cmd === "files" || cmd === "--f") {
       term.write(`\n\x1b[45m\tRevoirt File Explorer:\x1b[0m`);
-      fileNames.current?.map((name , index) => {
-        term.write(`\n\t\x1b[37m${index+1}. ${name}\x1b[0m`);
+      fileNames.current?.map((name, index) => {
+        term.write(`\n\t\x1b[37m${index + 1}. ${name}\x1b[0m`);
       })
       term.write(`\n`);
       writePrompt();
       return;
     }
 
-  term.write(`\r\n\x1b[41m\tCommand not found:\x1b[0m ${cmd} \n`);
-  writePrompt();
+    if (cmd === "run") {
+      const file = filesRef.current?.find((f) => f.path === pathRef.current);
+      runCurrentFile(term, file, writePrompt);   // async — writePrompt() called inside when done
+      return;
+    }
+
+    term.write(`\r\n\x1b[41m\tCommand not found:\x1b[0m ${cmd} \n`);
+    writePrompt();
   }
 
   useEffect(() => {
@@ -104,17 +115,17 @@ const RevoirtTerminal = () => {
 
     const fitAddon = new FitAddon();
     const webLinksAddon = new WebLinksAddon();
-    
-    const term = termRef.current ;
-    
+
+    const term = termRef.current;
+
     term.loadAddon(fitAddon);
     term.loadAddon(webLinksAddon);
 
     fitAddon.fit();
 
-    const ro = new ResizeObserver(() => { requestAnimationFrame(() => {fitAddon.fit})});
+    const ro = new ResizeObserver(() => { requestAnimationFrame(() => { fitAddon.fit() }) });
     ro.observe(terminalElementRef.current);
-    
+
     term.open(terminalElementRef.current);
     initialRenderPrompt();
     writePrompt();
@@ -124,7 +135,7 @@ const RevoirtTerminal = () => {
       switch (data) {
 
         //Enter keystroke to submit the current buffer as cmd
-        case "\r" : {
+        case "\r": {
           const cmd = inputBuffer.current;
           inputBuffer.current = "";
           handleCommand(cmd);
@@ -132,51 +143,55 @@ const RevoirtTerminal = () => {
         }
 
         //BackSpace keystroke to remove the last char from the buffer and erase from the screen
-        case "\x7f" : {
-          if(inputBuffer.current.length === 0) return ;
-          inputBuffer.current = inputBuffer.current.slice(0 , -1);
+        case "\x7f": {
+          if (inputBuffer.current.length === 0) return;
+          inputBuffer.current = inputBuffer.current.slice(0, -1);
           term.write("\b \b");
           break;
         }
 
         //Ctrl + C to cancle current line
-        case "\x03" : {
-          inputBuffer.current = "" ;
+        case "\x03": {
+          inputBuffer.current = "";
           term.write("^C");
           writePrompt();
           break;
         }
 
         // Ctrl+L — clear screen
-        case "\x0c" : {
+        case "\x0c": {
           term.write('Hello from \x1B[1;3;32mRevoirt\x1B[0m');
           writePrompt();
           break;
         }
 
-        default : {
-          if(data.startsWith("\x1b")) return ;
+        default: {
+          if (data.startsWith("\x1b")) return;
           term.write(data);
-          inputBuffer.current += data ;
+          inputBuffer.current += data;
         }
 
       }
     });
 
-    return () => {term.dispose(); ro.disconnect()};
+    return () => { term.dispose(); ro.disconnect() };
   }, [])
 
   useEffect(() => {
-    if(closeTerm){
+    if (closeTerm) {
       termRef.current?.blur();
     }
-  } , [closeTerm])
+  }, [closeTerm])
 
   useEffect(() => {
     fileNames.current = files?.map((file) => {
-      return file.name ;
+      return file.name;
     })
-  } , [files])
+  }, [files])
+
+
+  useEffect(() => { filesRef.current = files; }, [files]);
+  useEffect(() => { pathRef.current = path; }, [path]);
 
   return (
     <div ref={terminalElementRef} className="bg-[#181818] w-full h-full border-t border-t-gray-600 p-5 no-scrollbar overflow-y-scroll">
