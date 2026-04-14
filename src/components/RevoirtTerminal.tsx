@@ -4,8 +4,9 @@ import { Terminal } from "@xterm/xterm"
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import "@xterm/xterm/css/xterm.css";
-import { useCloseTerm, useFiles, useFilePath } from "../states/store.ts";
+import { useCloseTerm, useFiles, useFilePath, type file } from "../states/store.ts";
 import { runCurrentFile } from "./utils/runtimes/javascriptRuntime.ts";
+import { useSessionStorage } from "./utils/useSessionStorage.ts";
 
 const PROMPT = "\x1B[1;3;37mRevoirt \x1B[0m\x1b[37m>\x1b[0m "; // green ❯ prompt
 
@@ -20,6 +21,7 @@ const RevoirtTerminal = () => {
   const path = useFilePath((state) => state.path);
   const filesRef = useRef(files);
   const pathRef = useRef(path);
+  const {get} = new useSessionStorage();
 
   const inputBuffer = useRef<string>("");
 
@@ -39,7 +41,7 @@ const RevoirtTerminal = () => {
   }
 
 
-  const handleCommand = (command: string) => {
+  const handleCommand = async (command: string , file? : file) => {
     const term = termRef.current;
     if (!term) return;
 
@@ -51,6 +53,7 @@ const RevoirtTerminal = () => {
     }
 
     if (cmd === "clear" || cmd === "cls" || cmd === "clc") {
+      term.clear();
       term.write("\x1b[2J\x1b[H");
       initialRenderPrompt();
       writePrompt();
@@ -86,7 +89,6 @@ const RevoirtTerminal = () => {
     }
 
     if (cmd === "run") {
-      const file = filesRef.current?.find((f) => f.path === pathRef.current);
       runCurrentFile(term, file, writePrompt);   // async — writePrompt() called inside when done
       return;
     }
@@ -138,7 +140,13 @@ const RevoirtTerminal = () => {
         case "\r": {
           const cmd = inputBuffer.current;
           inputBuffer.current = "";
-          handleCommand(cmd);
+          if(cmd === "run"){
+            const file = filesRef.current?.find((f) => f.path === pathRef.current);
+            handleCommand(cmd , file);
+          }
+          else{
+            handleCommand(cmd);
+          }
           break;
         }
 
@@ -160,7 +168,9 @@ const RevoirtTerminal = () => {
 
         // Ctrl+L — clear screen
         case "\x0c": {
-          term.write('Hello from \x1B[1;3;32mRevoirt\x1B[0m');
+          term.clear();
+          term.write("\x1b[2J\x1b[H")
+          initialRenderPrompt();
           writePrompt();
           break;
         }
@@ -190,7 +200,13 @@ const RevoirtTerminal = () => {
   }, [files])
 
 
-  useEffect(() => { filesRef.current = files; }, [files]);
+  useEffect(() => {
+    filesRef.current = files;
+    if (!termRef.current || !files || !pathRef.current) return;
+    const name = filesRef.current?.find((f) => f.path === pathRef.current)?.name;
+    termRef.current?.write(`\x1b[32m${name} is saved\x1b[0m\r\n`); writePrompt()
+  }, [files]);
+
   useEffect(() => { pathRef.current = path; }, [path]);
 
   return (

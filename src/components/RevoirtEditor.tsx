@@ -25,6 +25,7 @@ const RevoirtEditor = () => {
   const path = useFilePath((state) => state.path);
   const setPath = useFilePath((state) => state.setPath);
   const files = useFiles((state) => state.files);
+  const setFiles = useFiles((state) => state.setFiles);
   const setLineCount = useLineCount((state) => state.setLineCount);
   const deletedPath = useDeletedFilePath((state) => state.deletedPath);
   useFileCount((state) => state.fileCount); //Imported only to re render the UI
@@ -127,6 +128,7 @@ const RevoirtEditor = () => {
       const updatedFile: file = { ...file, content: currentContent.current, updatedAt: Date.now() }
       setunsavedfilePaths(prev => prev.filter((file) => file !== path));
       await putFile(updatedFile);
+      currentFilesRef.current && setFiles(currentFilesRef.current);
     }
   }
 

@@ -18,7 +18,7 @@ export const runCurrentFile = async (term: Terminal, file: file | undefined, wri
   }
   else {
     if (!supportedExt.includes(ext)) {
-      term.write(`\r\n\t\x1b[41m ${file.name} is not supported\x1b[0m\n`);
+      term.write(`\r\n\t\x1b[41m ${file?.name} is not supported\x1b[0m\n`);
       writePrompt();
       return;
     }
