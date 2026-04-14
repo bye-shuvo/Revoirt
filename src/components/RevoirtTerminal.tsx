@@ -21,7 +21,6 @@ const RevoirtTerminal = () => {
   const path = useFilePath((state) => state.path);
   const filesRef = useRef(files);
   const pathRef = useRef(path);
-  const {get} = new useSessionStorage();
 
   const inputBuffer = useRef<string>("");
 
