@@ -6,7 +6,6 @@ import { WebLinksAddon } from '@xterm/addon-web-links';
 import "@xterm/xterm/css/xterm.css";
 import { useCloseTerm, useFiles, useFilePath, type file } from "../states/store.ts";
 import { runCurrentFile } from "./utils/runtimes/javascriptRuntime.ts";
-import { useSessionStorage } from "./utils/useSessionStorage.ts";
 
 const PROMPT = "\x1B[1;3;37mRevoirt \x1B[0m\x1b[37m>\x1b[0m "; // green ❯ prompt
 
@@ -60,7 +59,7 @@ const RevoirtTerminal = () => {
     }
 
     if (cmd === "help" || cmd === "--h") {
-      term.write("\r\n\x1b[42m\tAvailable commands:\x1b[0m \n\t 1.clear \n\t 2.help or --h \n\t 3.exit \n\t 4.version or --v \n\t 5.files or --f\n");
+      term.write("\r\n\x1b[42m\tAvailable commands:\x1b[0m \n\t 1.clear or clc or cls \n\t 2.help or --h \n\t 3.exit \n\t 4.version or --v \n\t 5.files or --f \n\t 6.run\n");
       writePrompt();
       return;
     }
