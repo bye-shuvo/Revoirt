@@ -6,7 +6,6 @@ import { WebLinksAddon } from '@xterm/addon-web-links';
 import "@xterm/xterm/css/xterm.css";
 import { useCloseTerm, useFiles, useFilePath, type file } from "../states/store.ts";
 import { runCurrentFile } from "./utils/runtimes/javascriptRuntime.ts";
-import { useSessionStorage } from "./utils/useSessionStorage.ts";
 
 const PROMPT = "\x1B[1;3;37mRevoirt \x1B[0m\x1b[37m>\x1b[0m "; // green ❯ prompt
 
@@ -40,11 +39,11 @@ const RevoirtTerminal = () => {
   }
 
 
-  const handleCommand = async (command: string , file? : file) => {
+  const handleCommand = async (command: string | undefined, file?: file) => {
     const term = termRef.current;
     if (!term) return;
 
-    const cmd = command.trim();
+    const cmd = command?.trim();
 
     if (!cmd) {
       writePrompt();
@@ -60,7 +59,7 @@ const RevoirtTerminal = () => {
     }
 
     if (cmd === "help" || cmd === "--h") {
-      term.write("\r\n\x1b[42m\tAvailable commands:\x1b[0m \n\t 1.clear \n\t 2.help or --h \n\t 3.exit \n\t 4.version or --v \n\t 5.files or --f\n");
+      term.write("\r\n\x1b[42m\tAvailable commands:\x1b[0m \n\t 1.clear or clc or cls \n\t 2.help or --h \n\t 3.exit \n\t 4.version or --v \n\t 5.files or --f \n\t 6.run --> run currently open file \n\t 8.run filename.ext --> run any valid file\n");
       writePrompt();
       return;
     }
@@ -89,6 +88,11 @@ const RevoirtTerminal = () => {
 
     if (cmd === "run") {
       runCurrentFile(term, file, writePrompt);   // async — writePrompt() called inside when done
+      return;
+    }
+
+    if (cmd === `run ${file?.name}`) {
+      runCurrentFile(term, file, writePrompt);
       return;
     }
 
@@ -139,11 +143,30 @@ const RevoirtTerminal = () => {
         case "\r": {
           const cmd = inputBuffer.current;
           inputBuffer.current = "";
-          if(cmd === "run"){
+
+          if (cmd === "run") {
             const file = filesRef.current?.find((f) => f.path === pathRef.current);
-            handleCommand(cmd , file);
+            handleCommand(cmd, file);
           }
-          else{
+          else if (cmd && cmd.startsWith("run ")) {
+            const validname = cmd.split(" ").pop();
+            if (!validname) {
+              term.write('\n\t\x1b[41mfile name missing!!!\x1b[0m\n');
+              term.write('\t\x1b[32mHint : try help or --h to display all files\x1b[0m\n');
+              writePrompt();
+              return;
+            }
+            if (fileNames.current?.includes(validname)) {
+              const file = filesRef.current?.find((f) => f.name === validname)
+              handleCommand(cmd, file);
+            }
+            else {
+              term.write('\n\t\x1b[41mNo file found of the name!!!\x1b[0m\n');
+              term.write('\t\x1b[32mHint : try files or --f to display all files\x1b[0m\n');
+              writePrompt();
+            }
+          }
+          else {
             handleCommand(cmd);
           }
           break;
@@ -151,8 +174,8 @@ const RevoirtTerminal = () => {
 
         //BackSpace keystroke to remove the last char from the buffer and erase from the screen
         case "\x7f": {
-          if (inputBuffer.current.length === 0) return;
-          inputBuffer.current = inputBuffer.current.slice(0, -1);
+          if (inputBuffer.current?.length === 0) return;
+          inputBuffer.current = inputBuffer.current?.slice(0, -1);
           term.write("\b \b");
           break;
         }
