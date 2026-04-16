@@ -144,14 +144,23 @@ const FileExplorer = () => {
     }
   }
 
+  const triggerFileCreation = (e : KeyboardEvent) => {
+    if((e.ctrlKey || e.metaKey) && e.key === "f"){
+      e.preventDefault();
+      setIsAddingNewFile(true);
+    }
+  }
+
 
   //Side Effect perform functions
   useEffect(() => {
     document.addEventListener("mousedown", createFileEvent);
     document.addEventListener("mousedown", deleteFileEvent);
+    document.addEventListener("keydown" , triggerFileCreation);
     return () => {
       document.removeEventListener("mousedown", createFileEvent);
       document.removeEventListener("mousedown", deleteFileEvent);
+      document.removeEventListener("keydown" , triggerFileCreation);
     }
   }, []);
 
