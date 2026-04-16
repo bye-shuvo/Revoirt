@@ -131,6 +131,7 @@ const RevoirtEditor = () => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
       e.preventDefault();
       if (!file) return;
+      if(!unsavedfilePaths.includes(path)) return ;
 
       const updatedFile: file = { ...file, content: currentContent.current, updatedAt: Date.now() }
       setunsavedfilePaths(prev => prev.filter((file) => file !== path));
@@ -154,7 +155,7 @@ const RevoirtEditor = () => {
   useEffect(() => {
     document.addEventListener("keydown", updateFile);
     return () => { document.removeEventListener("keydown", updateFile) }
-  }, [file]);
+  }, [file , unsavedfilePaths]);
 
   return (
     <>
