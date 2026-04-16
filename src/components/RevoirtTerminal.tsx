@@ -226,7 +226,7 @@ const RevoirtTerminal = () => {
     filesRef.current = files;
     if (!termRef.current || !files || !pathRef.current) return;
     const name = filesRef.current?.find((f) => f.path === pathRef.current)?.name;
-    termRef.current?.write(`\x1b[32m${name} is saved\x1b[0m\r\n`); writePrompt()
+    termRef.current?.write(`\x1b[32m${name} is saved\x1b[0m\r\n`); writePrompt();
   }, [files]);
 
   useEffect(() => { pathRef.current = path; }, [path]);
