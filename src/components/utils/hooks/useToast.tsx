@@ -7,7 +7,7 @@ interface position {
   right: string | undefined,
 }
 
-const Toast = ({ type, message, top, left, bottom, right }: { type: string, message: string, top?: string, left?: string, bottom?: string, right?: string }) => {
+const Toast = ({ type, message, duration , onDone , top, left, bottom, right }: { type: string, message: string, duration: number , onDone: Function , top?: string, left?: string, bottom?: string, right?: string }) => {
   const [delay, setDelay] = useState<number | undefined>(100);
   const timerRef = useRef<number>(null);
 
@@ -29,7 +29,7 @@ const Toast = ({ type, message, top, left, bottom, right }: { type: string, mess
         return prev && prev - 2;
       });
     };
-    timerRef.current = setInterval(timer, 50);
+    timerRef.current = setInterval(timer, duration/50);
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -45,7 +45,7 @@ const Toast = ({ type, message, top, left, bottom, right }: { type: string, mess
           bottom: position.bottom,
           right: position.right,
         }}
-        className={`absolute z-100 text-white backdrop-blur-2xl bg-[#2D425C]/50 p-4 pt-3 pb-3 rounded-sm`}
+        className={`absolute z-100 text-white backdrop-blur-2xl bg-[#2D425C]/50 px-3 pt-1 pb-1 rounded-sm`}
       >
         <p
           className={`${type === "general"
@@ -55,10 +55,10 @@ const Toast = ({ type, message, top, left, bottom, right }: { type: string, mess
                 : type === "error"
                   ? "bg-red-500"
                   : type === "warning" ? "bg-yellow-500" : "bg-slate-500"
-            } absolute h-full w-2 left-0 top-0 rounded-bl-sm rounded-tl-sm`}
+            } absolute h-full w-1 left-0 top-0 rounded-bl-sm rounded-tl-sm`}
         ></p>
         <span className="flex h-full w-full justify-center items-end">
-          <p className="text-md font-semibold z-10">{message}</p>
+          <p className="text-sm z-10 font-fira-code">{message}</p>
         </span>
         <p
           id="progress-bar"
@@ -69,8 +69,9 @@ const Toast = ({ type, message, top, left, bottom, right }: { type: string, mess
                 : type === "Error"
                   ? "bg-red-500/50"
                   : "bg-yellow-500/50"
-            } absolute h-full w-full left-0 bottom-0 transition-all ease-linear duration-100`}
-          style={{ width: `${String(delay)}%` }}
+            } absolute h-full w-full left-0 bottom-0 transition-all ease-linear duration-50`}
+          style={{ width: `${String(delay && delay)}%` }}
+          onTransitionEnd={() => { (delay=== 0) && onDone?.()}}
         ></p>
       </div>
     </>
