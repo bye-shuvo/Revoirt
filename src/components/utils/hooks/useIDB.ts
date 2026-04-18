@@ -1,4 +1,4 @@
-import type { file } from "../../states/store";
+import type { file } from "../../../states/store";
 
 //Helper function to promisify the IDBRequest 
 const promisifyRequest = (request: IDBRequest): Promise<[]> => {

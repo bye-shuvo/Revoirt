@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import { deleteFile, executeIDB } from "./utils/useIDB.ts";
+import { deleteFile, executeIDB } from "./utils/hooks/useIDB.ts";
 import { useDeletedFilePath, useFilePath, useFiles, type file } from '../states/store.ts';
-import { useSessionStorage } from './utils/useSessionStorage.ts';
+import { useSessionStorage } from './utils/hooks/useSessionStorage.ts';
 import { monacoLanguages } from './utils/monacoLanguages.ts';
 
 

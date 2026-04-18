@@ -3,9 +3,9 @@ import Editor, { type Monaco } from "@monaco-editor/react"
 import { useRef, useEffect, useState } from "react";
 
 import { useCursorPosition, useDeletedFilePath, useFileCount, useFilePath, useFiles, useLineCount, type file } from "../states/store.ts";
-import { putFile } from "./utils/useIDB.ts";
-import { useSessionStorage } from "./utils/useSessionStorage.ts";
-import useDebounce from './utils/useDebounce.tsx';
+import { putFile } from "./utils/hooks/useIDB.ts";
+import { useSessionStorage } from "./utils/hooks/useSessionStorage.ts";
+import useDebounce from './utils/hooks/useDebounce.tsx';
 
 const shortcuts = 
 [
