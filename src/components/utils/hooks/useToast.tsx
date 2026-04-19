@@ -7,7 +7,9 @@ interface position {
   right: string | undefined,
 }
 
-const Toast = ({ type, message, duration , onDone , top, left, bottom, right }: { type: string, message: string, duration: number , onDone: Function , top?: string, left?: string, bottom?: string, right?: string }) => {
+type toastType = ["success" | "error" | "warning" | "general"];
+
+const Toast = ({ type, message, duration, onDone, top, left, bottom, right }: { type: toastType | string , message: string, duration: number, onDone: Function, top?: string, left?: string, bottom?: string, right?: string }) => {
   const [delay, setDelay] = useState<number | undefined>(100);
   const timerRef = useRef<number>(null);
 
@@ -29,7 +31,7 @@ const Toast = ({ type, message, duration , onDone , top, left, bottom, right }: 
         return prev && prev - 2;
       });
     };
-    timerRef.current = setInterval(timer, duration/50);
+    timerRef.current = setInterval(timer, duration / 50);
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -49,12 +51,12 @@ const Toast = ({ type, message, duration , onDone , top, left, bottom, right }: 
       >
         <p
           className={`${type === "general"
-              ? "bg-sky-500"
-              : type === "confirmation"
-                ? "bg-green-500"
-                : type === "error"
-                  ? "bg-red-500"
-                  : type === "warning" ? "bg-yellow-500" : "bg-slate-500"
+            ? "bg-sky-500"
+            : type === "success"
+              ? "bg-green-500"
+              : type === "error"
+                ? "bg-red-500"
+                : type === "warning" ? "bg-yellow-500" : "bg-slate-500"
             } absolute h-full w-1 left-0 top-0 rounded-bl-sm rounded-tl-sm`}
         ></p>
         <span className="flex h-full w-full justify-center items-end">
@@ -63,15 +65,15 @@ const Toast = ({ type, message, duration , onDone , top, left, bottom, right }: 
         <p
           id="progress-bar"
           className={`${type === "general"
-              ? "bg-sky-500/50"
-              : type === "confirmation"
-                ? "bg-green-500/50"
-                : type === "Error"
-                  ? "bg-red-500/50"
-                  : "bg-yellow-500/50"
+            ? "bg-sky-500/50"
+            : type === "success"
+              ? "bg-green-500/50"
+              : type === "error"
+                ? "bg-red-500/50"
+                : type === "warning" ? "bg-yellow-500" : "bg-slate-500"
             } absolute h-full w-full left-0 bottom-0 transition-all ease-linear duration-50`}
           style={{ width: `${String(delay && delay)}%` }}
-          onTransitionEnd={() => { (delay=== 0) && onDone?.()}}
+          onTransitionEnd={() => { (delay === 0) && onDone?.() }}
         ></p>
       </div>
     </>
