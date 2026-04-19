@@ -92,7 +92,7 @@ const FileExplorer = () => {
       refreshFiles();
       setFile(undefined);
       setIsAddingNewFile(false);
-      setShowToast({ doShow: true, type: "confirmation", message: "File Created Successfully" });
+      setShowToast({ doShow: true, type: "success", message: "File Created Successfully" });
     }
   }
 
@@ -100,7 +100,7 @@ const FileExplorer = () => {
     await deleteFile(path);
     await refreshFiles();
     setDeletedPath("");
-    setShowToast({ doShow: true, type: "confirmation", message: "File Deleted Successfully" });
+    setShowToast({ doShow: true, type: "success", message: "File Deleted Successfully" });
   }
 
   //Handler Functions to change file name
@@ -147,7 +147,7 @@ const FileExplorer = () => {
     if (e.key === 'Enter') {
       await changeFileName();
       setIsRenamingFile(false);
-      setShowToast({ doShow: true, type: "confirmation", message: "File Renamed successfully" });
+      setShowToast({ doShow: true, type: "success", message: "File Renamed successfully" });
     }
   }
 
