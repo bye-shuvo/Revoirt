@@ -1,14 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { deleteFile, executeIDB } from "./utils/hooks/useIDB.ts";
-import { useDeletedFilePath, useFilePath, useFiles, type file } from '../states/store.ts';
+import { useDeletedFilePath, useFilePath, useFiles, useShowToast, type file } from '../states/store.ts';
 import { useSessionStorage } from './utils/hooks/useSessionStorage.ts';
 import { monacoLanguages } from './utils/monacoLanguages.ts';
 import Toast from './utils/hooks/useToast.tsx';
-interface toastProps {
-  doShow: boolean,
-  type: string,
-  message: string
-}
 
 const FileExplorer = () => {
   const [isAddingNewFile, setIsAddingNewFile] = useState(false);
@@ -16,7 +11,6 @@ const FileExplorer = () => {
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [renameValue, setRenameValue] = useState<string>("");
   const [file, setFile] = useState<file | undefined>(); //put new file
-  const [showToast, setShowToast] = useState<toastProps>();
 
   const inputFile = useRef<HTMLLIElement>(null);
   const renameFile = useRef<HTMLLIElement>(null);
@@ -33,6 +27,8 @@ const FileExplorer = () => {
   const setFiles = useFiles((state) => state.setFiles);
   const deletedPath = useDeletedFilePath((state) => state.deletedPath);
   const setDeletedPath = useDeletedFilePath((state) => state.setDeletedPath);
+  const showToast = useShowToast((state) => state.showToast);
+  const setShowToast = useShowToast((state) => state.setShowToast);
 
   const refreshFiles = async () => {
     const files: file[] = await executeIDB(file);
@@ -92,7 +88,7 @@ const FileExplorer = () => {
       refreshFiles();
       setFile(undefined);
       setIsAddingNewFile(false);
-      setShowToast({ doShow: true, type: "success", message: "File Created Successfully" });
+      setShowToast({ doShow: true, type: "success", message: "File Created" });
     }
   }
 
@@ -100,7 +96,7 @@ const FileExplorer = () => {
     await deleteFile(path);
     await refreshFiles();
     setDeletedPath("");
-    setShowToast({ doShow: true, type: "success", message: "File Deleted Successfully" });
+    setShowToast({ doShow: true, type: "success", message: "File Deleted" });
   }
 
   //Handler Functions to change file name
