@@ -1,86 +1,106 @@
 import { create } from "zustand";
 
 type path = {
-    path : string ,
-    setPath : (next : string) => void ;
+    path: string,
+    setPath: (next: string) => void;
 }
 
 export const useFilePath = create<path>((set) => ({
-    path : "" , 
-    setPath : (next) => set({path : next})
+    path: "",
+    setPath: (next) => set({ path: next })
 }))
 
 type deletedPath = {
-    deletedPath : string ,
-    setDeletedPath : (next : string) => void ;
+    deletedPath: string,
+    setDeletedPath: (next: string) => void;
 }
 
 export const useDeletedFilePath = create<deletedPath>((set) => ({
-    deletedPath : "" ,
-    setDeletedPath : (next) => set({deletedPath : next})
+    deletedPath: "",
+    setDeletedPath: (next) => set({ deletedPath: next })
 }))
 
 export interface file {
-  path: string;  // primary key
-  name: string;
-  type: string;
-  extension: string;
-  parentPath: string;
-  content: string;
-  createdAt: number;
-  updatedAt: number;
+    path: string;  // primary key
+    name: string;
+    type: string;
+    extension: string;
+    parentPath: string;
+    content: string;
+    createdAt: number;
+    updatedAt: number;
 }
 
 type files = {
-    files : file[] | undefined,
-    setFiles : (next : file[]) => void ;
+    files: file[] | undefined,
+    setFiles: (next: file[]) => void;
 }
 
 export const useFiles = create<files>((set) => ({
-    files : undefined ,
-    setFiles : (next) => set({files : next})
+    files: undefined,
+    setFiles: (next) => set({ files: next })
 }))
 
 type lineCount = {
-    lineCount : number , 
-    setLineCount : (next : number) => void
+    lineCount: number,
+    setLineCount: (next: number) => void
 }
 
 export const useLineCount = create<lineCount>((set) => ({
-    lineCount : 0 ,
-    setLineCount : (next) => set({lineCount : next})
+    lineCount: 0,
+    setLineCount: (next) => set({ lineCount: next })
 }))
 
 type fileCount = {
-    fileCount : number , 
-    setFileCount : (next : number) => void
+    fileCount: number,
+    setFileCount: (next: number) => void
 }
 
 export const useFileCount = create<fileCount>((set) => ({
-    fileCount : 0 ,
-    setFileCount : (next) => set({fileCount : next})
+    fileCount: 0,
+    setFileCount: (next) => set({ fileCount: next })
 }))
 
 type cursorPosition = {
-    cursorPosition : {
-        ln : number ,
-        col : number
+    cursorPosition: {
+        ln: number,
+        col: number
     }
-    setCursorPosition : (next : {ln : number , col : number}) => void;
+    setCursorPosition: (next: { ln: number, col: number }) => void;
 }
 
 export const useCursorPosition = create<cursorPosition>((set) => ({
-    cursorPosition : {ln : 1 , col : 1},
-    setCursorPosition : (next) => set({cursorPosition : next})
+    cursorPosition: { ln: 1, col: 1 },
+    setCursorPosition: (next) => set({ cursorPosition: next })
 }))
 
 
 type closeTerm = {
-    closeTerm : boolean
-    setCloseTerm : (next : boolean) =>  void ;
+    closeTerm: boolean
+    setCloseTerm: (next: boolean) => void;
 }
 
 export const useCloseTerm = create<closeTerm>((set) => ({
- closeTerm : true ,
- setCloseTerm : (next) => set({closeTerm : next})
+    closeTerm: true,
+    setCloseTerm: (next) => set({ closeTerm: next })
 }))
+
+export type toast = {
+    doShow: boolean,
+    type: string,
+    message: string
+}
+
+type showToast = {
+    showToast: {
+        doShow: boolean,
+        type: string,
+        message: string
+    },
+    setShowToast: (next: toast) => void
+}
+
+export const useShowToast = create<showToast>((set) => ({
+    showToast: {doShow : false , type : "" , message : ""},
+    setShowToast: (next) => set({showToast : next})
+}));

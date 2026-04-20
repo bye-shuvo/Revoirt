@@ -7,7 +7,7 @@ import Navigation from "./Navigation";
 import RevoirtEditor from "./RevoirtEditor";
 import Tooltip from "./Tooltip";
 import { useTerminalShortcut } from "./utils/useTerminalShortcut";
-import { useCloseTerm } from "../states/store";
+import { useCloseTerm } from "../states/store.ts";
 
 const App = () => { 
   const termPanelRef = usePanelRef();
@@ -15,7 +15,7 @@ const App = () => {
   const setCloseTerm = useCloseTerm((state) => state.setCloseTerm);
 
   return (
-    <main className="h-screen w-screen flex flex-col justify-end">
+    <main className="h-screen w-screen flex flex-col justify-end font-jetbrains-mono">
       <Navigation />
       <Group
         id="Revoirt-editor"
