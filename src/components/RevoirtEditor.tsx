@@ -19,6 +19,7 @@ const shortcuts =
 
 const RevoirtEditor = () => {
   const [file, setFile] = useState<file>();
+  const [editorDidMount, setEditorDidMount] = useState<boolean>(false);
   const [unsavedfilePaths, setunsavedfilePaths] = useState<Array<string>>([]);
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
@@ -103,6 +104,7 @@ const RevoirtEditor = () => {
 
   //Editor onmount handler
   const handleEditorDidMount = async (editor: editor.IStandaloneCodeEditor) => {
+    setEditorDidMount(true);
     editorRef.current = editor;
     editor.focus();
 
@@ -121,7 +123,7 @@ const RevoirtEditor = () => {
       setCursorPosition({ ln: e.position.lineNumber, col: e.position.column });
     })
 
-    editor.onDidDispose(() => { setCursorPosition({ ln: 1, col: 1 }) })
+    editor.onDidDispose(() => { setCursorPosition({ ln: 1, col: 1 }); setEditorDidMount(false) })
   };
 
   //Editor onchange handler
@@ -169,28 +171,38 @@ const RevoirtEditor = () => {
   }, [file, unsavedfilePaths]);
 
   //yjs implementation for collaborative code editor
+  // Yjs documents are collections of shared objects that sync automatically.
   useEffect(() => {
     if (!editorRef.current) return;
     const model = editorRef.current?.getModel();
     if (!model) return;
+    //yjs document to simulate a remote user
     const ydocument = new Y.Doc();
     const provider = new WebsocketProvider("ws://localhost:1234", path, ydocument);
-    console.log(provider.bcconnected)
+    console.log(provider.bcconnected);
     const type = ydocument.getText(path);
 
     const binding = new MonacoBinding(type, model, new Set([editorRef.current]), provider.awareness);
+
+    provider.on('sync', (isSyncronized: boolean) => {
+      if (isSyncronized && type.length === 0) {
+        const sharedFile = currentFilesRef.current?.find((f) => f.path === path);
+        sharedFile && type.insert(0, sharedFile?.content);
+      }
+    });
 
     return () => {
       ydocument.destroy();
       provider.destroy();
       binding.destroy();
+      setEditorDidMount(false);
     }
-  }, [path]);
+  }, [path, editorDidMount]);
 
   return (
     <>
       {
-        (!path) ? <div className="h-full bg-inherit flex justify-center items-center flex-col gap-5 text-white font-jetbrains-mono">
+        (!path) ? <div className="h-full bg-inherit flex justify-center items-center flex-col gap-5 text-white font-jetbrains-mono no-scrollbar overflow-hidden">
           <h1 className="text-lg">
             <p className='text-xl text-purple-300'>Welcome</p>
             <p className='text-xl text-purple-300'>To</p>
