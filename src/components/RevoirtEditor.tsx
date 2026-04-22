@@ -178,6 +178,7 @@ const RevoirtEditor = () => {
     if (!model) return;
     //yjs document to simulate a remote user
     const ydocument = new Y.Doc();
+    //websocketprovider for syncronizing remote users
     const provider = new WebsocketProvider("ws://localhost:1234", path, ydocument);
     console.log(provider.bcconnected);
     const type = ydocument.getText(path);
