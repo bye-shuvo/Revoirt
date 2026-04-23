@@ -129,7 +129,12 @@ const RevoirtEditor = () => {
   const handleValueChange = async (value: string | undefined) => {
     if (value !== undefined) {
       currentContent.current = value;
-      setunsavedfilePaths(prev => [...prev, path]);
+      if(currentFilesRef.current?.find((f) => f.path === path)?.content === value){
+        setunsavedfilePaths(prev => prev.filter((p) => p !== path));
+      }
+      else{
+        setunsavedfilePaths(prev => [...prev , path]);
+      }
       debounce(() => getUpdatedFiles(value));
     }
   }
@@ -169,37 +174,38 @@ const RevoirtEditor = () => {
     return () => { document.removeEventListener("keydown", updateFile) }
   }, [file, unsavedfilePaths]);
 
-  // //yjs implementation for collaborative code editor
-  // // Yjs documents are collections of shared objects that sync automatically.
-  // useEffect(() => {
-  //   if (!editorRef.current) return;
-  //   const model = editorRef.current?.getModel();
-  //   if (!model) return;
-  //   //yjs document to simulate a remote user
-  //   const ydocument = new Y.Doc();
+  //yjs implementation for collaborative code editor
+  // Yjs documents are collections of shared objects that sync automatically.
+  useEffect(() => {
+    if (!editorRef.current) return;
+    const model = editorRef.current?.getModel();
+    if (!model) return;
+    //yjs document to simulate a remote user
+    const ydocument = new Y.Doc();
 
-  //   //websocketprovider for syncronizing remote users
-  //   const provider = new WebsocketProvider("ws://localhost:1234", path, ydocument);
+    //websocketprovider for syncronizing remote users
+    const provider = new WebsocketProvider("ws://localhost:1234", path, ydocument);
 
-  //   const type = ydocument.getText(path);
-  //   let binding: MonacoBinding | null = null;
-  //   provider.on('sync', (isSyncronized: boolean) => {
-  //     if (isSyncronized && editorRef.current) {
-  //       binding = new MonacoBinding(type, model, new Set([editorRef.current]), provider.awareness);
-  //     }
-  //     if (type.length === 0) {
-  //       const sharedFile = currentFilesRef.current?.find((f) => f.path === path);
-  //       sharedFile && type.insert(0, sharedFile?.content);
-  //     }
-  //   }
-  //   );
+    const type = ydocument.getText(path);
 
-  //   return () => {
-  //     ydocument.destroy();
-  //     provider.destroy();
-  //     binding?.destroy();
-  //   }
-  // }, [path, editorDidMount]);
+    let binding: MonacoBinding | null = null;
+    provider.on('sync', (isSyncronized: boolean) => {
+      if (isSyncronized && editorRef.current) {
+        binding = new MonacoBinding(type, model, new Set([editorRef.current]), provider.awareness);
+      }
+      if (type.length === 0) {
+        const sharedFile = currentFilesRef.current?.find((f) => f.path === path);
+        sharedFile && type.insert(0, sharedFile?.content);
+      }
+    }
+    );
+
+    return () => {
+      ydocument.destroy();
+      provider.destroy();
+      binding?.destroy();
+    }
+  }, [path, editorDidMount]);
 
   return (
     <>
