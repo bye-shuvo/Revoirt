@@ -85,7 +85,6 @@ const RevoirtEditor = () => {
     if (closePath === path) {
       const lastFile = remainingFiles.at(-1);
       setPath(lastFile ? lastFile?.path : "");
-      setFile(lastFile ? lastFile : undefined);
     }
   }
 
@@ -170,35 +169,37 @@ const RevoirtEditor = () => {
     return () => { document.removeEventListener("keydown", updateFile) }
   }, [file, unsavedfilePaths]);
 
-  //yjs implementation for collaborative code editor
-  // Yjs documents are collections of shared objects that sync automatically.
-  useEffect(() => {
-    if (!editorRef.current) return;
-    const model = editorRef.current?.getModel();
-    if (!model) return;
-    //yjs document to simulate a remote user
-    const ydocument = new Y.Doc();
-    //websocketprovider for syncronizing remote users
-    const provider = new WebsocketProvider("ws://localhost:1234", path, ydocument);
-    console.log(provider.bcconnected);
-    const type = ydocument.getText(path);
+  // //yjs implementation for collaborative code editor
+  // // Yjs documents are collections of shared objects that sync automatically.
+  // useEffect(() => {
+  //   if (!editorRef.current) return;
+  //   const model = editorRef.current?.getModel();
+  //   if (!model) return;
+  //   //yjs document to simulate a remote user
+  //   const ydocument = new Y.Doc();
 
-    const binding = new MonacoBinding(type, model, new Set([editorRef.current]), provider.awareness);
+  //   //websocketprovider for syncronizing remote users
+  //   const provider = new WebsocketProvider("ws://localhost:1234", path, ydocument);
 
-    provider.on('sync', (isSyncronized: boolean) => {
-      if (isSyncronized && type.length === 0) {
-        const sharedFile = currentFilesRef.current?.find((f) => f.path === path);
-        sharedFile && type.insert(0, sharedFile?.content);
-      }
-    });
+  //   const type = ydocument.getText(path);
+  //   let binding: MonacoBinding | null = null;
+  //   provider.on('sync', (isSyncronized: boolean) => {
+  //     if (isSyncronized && editorRef.current) {
+  //       binding = new MonacoBinding(type, model, new Set([editorRef.current]), provider.awareness);
+  //     }
+  //     if (type.length === 0) {
+  //       const sharedFile = currentFilesRef.current?.find((f) => f.path === path);
+  //       sharedFile && type.insert(0, sharedFile?.content);
+  //     }
+  //   }
+  //   );
 
-    return () => {
-      ydocument.destroy();
-      provider.destroy();
-      binding.destroy();
-      setEditorDidMount(false);
-    }
-  }, [path, editorDidMount]);
+  //   return () => {
+  //     ydocument.destroy();
+  //     provider.destroy();
+  //     binding?.destroy();
+  //   }
+  // }, [path, editorDidMount]);
 
   return (
     <>
