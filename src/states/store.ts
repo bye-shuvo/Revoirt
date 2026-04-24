@@ -21,6 +21,7 @@ export const useDeletedFilePath = create<deletedPath>((set) => ({
 }))
 
 export interface file {
+    id: string;
     path: string;  // primary key
     name: string;
     type: string;
