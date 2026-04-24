@@ -49,8 +49,10 @@ const FileExplorer = () => {
     const trimmedName: string = e.target.value.trim();
     const extension = trimmedName.split(".").pop() ?? "";
     const type = monacoLanguages[extension];
+    const UFID = `${trimmedName.split(".").shift()}-${Date.now().toString().replace(" " , "-")}`
     setFile(
       {
+        id: UFID ,
         path: `src/${trimmedName}`,
         name: trimmedName,
         type: type,
