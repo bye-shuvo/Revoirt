@@ -2,8 +2,8 @@ const Home = () => {
   return (
     <div className="flex justify-center items-center h-screen w-full">
       <div id="line1" className="w-1/5 h-px bg-white absolute top-[10%] left-0">
-        <div id="subline1" className="w-px h-80 bg-white absolute top-[10%] left-full">
-          <div id="subline1.1" className="h-px w-80 bg-white absolute top-full left-full">
+        <div id="subline1" className="w-px h-[35vh] bg-white absolute top-[10%] left-full">
+          <div id="subline1.1" className="h-px w-[17vw] bg-white absolute top-full left-full">
           </div>
         </div>
       </div>

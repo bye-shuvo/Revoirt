@@ -46,6 +46,9 @@ const RevoirtEditor = () => {
   useShowToast((state) => state.showToast);
   const setShowToast = useShowToast((state) => state.setShowToast);
 
+  //.env variables
+  const wsServerUrl = import.meta.env.VITE_WS_SERVER_URL ;
+
   //Helper Functions
 
   const initializeFiles = async (): Promise<void> => {
@@ -103,7 +106,7 @@ const RevoirtEditor = () => {
   //Handler Functions
 
   //Editor onmount handler
-  const handleEditorDidMount = async (editor: editor.IStandaloneCodeEditor) => {
+  const handleEditorDidMount = useCallback(async (editor: editor.IStandaloneCodeEditor) => {
     setEditorDidMount(true);
     editorRef.current = editor;
     editor.focus();
@@ -116,7 +119,7 @@ const RevoirtEditor = () => {
 
     //editor event that runs / fires every time the monaco editor changes model / file changes
 
-    editor.onDidChangeModel(() => { updateLineCount(); });
+    editor.onDidChangeModel(updateLineCount);
     editor.onDidChangeModelContent(updateLineCount);
 
     //Current position of the cursor
@@ -125,7 +128,7 @@ const RevoirtEditor = () => {
     })
 
     editor.onDidDispose(() => { setCursorPosition({ ln: 1, col: 1 }); setEditorDidMount(false) })
-  };
+  }, [path]);
 
   //Editor onchange handler
   const handleValueChange = useCallback(async (value: string | undefined) => {
@@ -192,9 +195,9 @@ const RevoirtEditor = () => {
     const ydocument = new Y.Doc();
 
     //websocketprovider for syncronizing remote users
-    const provider = new WebsocketProvider("ws://localhost:1234", currentFile?.id, ydocument);
+    const provider = new WebsocketProvider(wsServerUrl, currentFile?.id, ydocument);
 
-    provider.on('status', (event:any) => {
+    provider.on('status', (event: any) => {
       console.log(event.status) // logs "connected" or "disconnected"
     })
 
@@ -203,7 +206,6 @@ const RevoirtEditor = () => {
     let binding: MonacoBinding | null = null;
 
     const handleSync = (isSyncronized: boolean) => {
-      console.log('SYNC FIRED:', isSyncronized, "room :", currentFile?.id);
       if (isSyncronized) {
         if (editorRef.current) {
           binding?.destroy();
