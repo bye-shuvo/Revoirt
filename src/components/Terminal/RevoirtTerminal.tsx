@@ -4,8 +4,8 @@ import { Terminal } from "@xterm/xterm"
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import "@xterm/xterm/css/xterm.css";
-import { useCloseTerm, useFiles, useFilePath, type file } from "../states/store.ts";
-import { runCurrentFile } from "../utills/runtimes/javascriptRuntime.ts";
+import { useCloseTerm, useFiles, useFilePath, type file } from "../../states/store.ts";
+import { runCurrentFile } from "../../utills/runtimes/javascriptRuntime.ts";
 
 const PROMPT = "\x1B[1;3;37mRevoirt \x1B[0m\x1b[37m>\x1b[0m "; // white ❯ prompt
 

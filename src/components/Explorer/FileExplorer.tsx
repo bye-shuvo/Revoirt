@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
-import { deleteFile, executeIDB } from "../utills/hooks/useIDB.ts";
-import { useDeletedFilePath, useFilePath, useFiles, useShowToast, type file } from '../states/store.ts';
-import { useSessionStorage } from '../utills/hooks/useSessionStorage.ts';
-import { monacoLanguages } from '../types/monacoLanguages.ts';
-import Toast from '../utills/hooks/useToast.tsx';
+import { deleteFile, executeIDB } from "../../utills/hooks/useIDB.ts";
+import { useDeletedFilePath, useFilePath, useFiles, useShowToast, type file } from '../../states/store.ts';
+import { useSessionStorage } from '../../utills/hooks/useSessionStorage.ts';
+import { monacoLanguages } from '../../types/monacoLanguages.ts';
+import Toast from '../../utills/hooks/useToast.tsx';
 
 const FileExplorer = () => {
   const [isAddingNewFile, setIsAddingNewFile] = useState(false);
