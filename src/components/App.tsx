@@ -6,7 +6,7 @@ const RevoirtTerminal = lazy(() => import("./RevoirtTerminal"));
 import Navigation from "./Navigation";
 import RevoirtEditor from "./RevoirtEditor";
 import Tooltip from "./Tooltip";
-import { useTerminalShortcut } from "./utils/useTerminalShortcut";
+import { useTerminalShortcut } from "./../utills/services/useTerminalShortcut.ts";
 import { useCloseTerm } from "../states/store.ts";
 
 const App = () => { 

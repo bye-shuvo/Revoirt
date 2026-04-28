@@ -1,6 +1,6 @@
 import type { PanelImperativeHandle } from "react-resizable-panels";
 import { useEffect, useRef } from "react";
-import { useCloseTerm } from "../../states/store";
+import { useCloseTerm } from "../../states/store.ts";
 
 export const useTerminalShortcut = (termPanelRef: React.RefObject<PanelImperativeHandle | null>) => {
 
