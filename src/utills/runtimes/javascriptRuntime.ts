@@ -1,5 +1,5 @@
 import type { Terminal } from "@xterm/xterm";
-import type { file } from "../../../states/store";
+import type { file } from "../../states/store";
 
 const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
 
