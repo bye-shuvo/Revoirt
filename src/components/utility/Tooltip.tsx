@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useCursorPosition, useFileCount, useFilePath, useFiles, useLineCount, type file } from "../states/store.ts"
+import { useCursorPosition, useFileCount, useFilePath, useFiles, useLineCount, type file } from "../../states/store.ts"
 
 const Tooltip = () => {
     const currentFileRef = useRef<file | undefined>(undefined);

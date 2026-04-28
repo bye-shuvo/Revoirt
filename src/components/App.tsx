@@ -1,12 +1,12 @@
 import { lazy, Suspense } from "react";
 import { Group, Panel, Separator , usePanelRef, type PanelSize} from "react-resizable-panels";
 
-import FileExplorer from "./FileExplorer";
-const RevoirtTerminal = lazy(() => import("./RevoirtTerminal"));
-import Navigation from "./Navigation";
-import RevoirtEditor from "./RevoirtEditor";
-import Tooltip from "./Tooltip";
-import { useTerminalShortcut } from "./../utills/services/useTerminalShortcut.ts";
+import FileExplorer from "./Explorer/FileExplorer.tsx";
+const RevoirtTerminal = lazy(() => import("./Terminal/RevoirtTerminal"));
+import Navigation from "./utility/Navigation.tsx";
+import RevoirtEditor from "./Editor/RevoirtEditor.tsx";
+import Tooltip from "./utility/Tooltip.tsx";
+import { useTerminalShortcut } from "../utills/services/TerminalShortcut.ts";
 import { useCloseTerm } from "../states/store.ts";
 
 const App = () => { 
