@@ -23,7 +23,7 @@ const Tooltip = () => {
     }, [files , path]);
 
     return (
-        <div className="absoute bottom-0 h-[4%] w-full flex justify-end gap-5 px-5 items-center text-white bg-[#181818] border-t border-gray-600 font-fira-code">
+        <div className="absoute bottom-0 h-[5%] w-full flex justify-end gap-5 px-5 items-center text-white bg-[#181818] border-t border-gray-600 font-fira-code">
             {path && <p>Last updated: {lastUpdatedTime} | </p>}
             <p>Ln:{cursorPostion.ln} Col:{cursorPostion.col}</p> |
             <p>LOC:{lineCount || 0}</p> |

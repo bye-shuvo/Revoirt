@@ -19,7 +19,7 @@ const App = () => {
   return (
     <main className="h-screen w-screen flex flex-col justify-end font-jetbrains-mono">
       {
-        isCollaborating && <><CollaborationModal /><div id="overlay" className="absolute h-screen w-screen top-0 left-0 bg-mist-700/10 blur-2xl z-50"></div></>
+        isCollaborating && <><CollaborationModal /><div id="overlay" className="absolute h-full w-full top-0 left-0 bg-neutral-900/10 z-50"></div></>
       }
       <Navigation />
       <Group
