@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Group, Panel, Separator , usePanelRef, type PanelSize} from "react-resizable-panels";
+import { Group, Panel, Separator, usePanelRef, type PanelSize } from "react-resizable-panels";
 
 import FileExplorer from "./Explorer/FileExplorer.tsx";
 const RevoirtTerminal = lazy(() => import("./Terminal/RevoirtTerminal"));
@@ -7,15 +7,20 @@ import Navigation from "./utility/Navigation.tsx";
 import RevoirtEditor from "./Editor/RevoirtEditor.tsx";
 import Tooltip from "./utility/Tooltip.tsx";
 import { useTerminalShortcut } from "../utills/services/TerminalShortcut.ts";
-import { useCloseTerm } from "../states/store.ts";
+import { useCloseTerm, useIsCollaborating } from "../states/store.ts";
+import CollaborationModal from "./utility/CollaborationModal.tsx";
 
-const App = () => { 
+const App = () => {
   const termPanelRef = usePanelRef();
   useTerminalShortcut(termPanelRef);
   const setCloseTerm = useCloseTerm((state) => state.setCloseTerm);
+  const isCollaborating = useIsCollaborating((state) => state.isCollaborating);
 
   return (
     <main className="h-screen w-screen flex flex-col justify-end font-jetbrains-mono">
+      {
+        isCollaborating && <><CollaborationModal /><div id="overlay" className="absolute h-screen w-screen top-0 left-0 bg-mist-700/10 blur-2xl z-50"></div></>
+      }
       <Navigation />
       <Group
         id="Revoirt-editor"
@@ -37,18 +42,18 @@ const App = () => {
             <Panel id="editor" defaultSize={"100%"}>
               <RevoirtEditor />
             </Panel>
-            <Panel id="terminal" 
-            panelRef={termPanelRef} 
-            collapsible 
-            collapsedSize={0} 
-            defaultSize={0} 
-            minSize={"40%"} 
-            maxSize={"74%"} 
-            onResize={(panelSize : PanelSize) => {
-              (panelSize.inPixels === 0) ? setCloseTerm(true) : setCloseTerm(false) ;
-            }}>
+            <Panel id="terminal"
+              panelRef={termPanelRef}
+              collapsible
+              collapsedSize={0}
+              defaultSize={0}
+              minSize={"40%"}
+              maxSize={"74%"}
+              onResize={(panelSize: PanelSize) => {
+                (panelSize.inPixels === 0) ? setCloseTerm(true) : setCloseTerm(false);
+              }}>
               <Suspense fallback={null}>
-                <RevoirtTerminal/>
+                <RevoirtTerminal />
               </Suspense>
             </Panel>
           </Group>

@@ -105,3 +105,13 @@ export const useShowToast = create<showToast>((set) => ({
     showToast: {doShow : false , type : "" , message : ""},
     setShowToast: (next) => set({showToast : next})
 }));
+
+type isCollaborating = {
+    isCollaborating : boolean,
+    setIsCollaborating : (next:boolean) => void ;
+}
+
+export const useIsCollaborating = create<isCollaborating>((set) => ({
+    isCollaborating : false ,
+    setIsCollaborating : (next) => set({isCollaborating : next})
+}))

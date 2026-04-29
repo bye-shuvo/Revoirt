@@ -174,7 +174,9 @@ const RevoirtEditor = () => {
   }, [file, unsavedfilePaths]);
 
 //yjs implementation for collaborative editor
- useCollaboration(editorRef , currentFilesRef , isCollaborating ,editorDidMount , path);
+if(path && isCollaborating){
+  useCollaboration(editorRef , currentFilesRef , isCollaborating ,editorDidMount , path);
+}
 
   return (
     <>
