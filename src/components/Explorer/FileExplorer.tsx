@@ -4,6 +4,7 @@ import { useDeletedFilePath, useFilePath, useFiles, useShowToast, type file } fr
 import { useSessionStorage } from '../../utills/hooks/useSessionStorage.ts';
 import { monacoLanguages } from '../../types/monacoLanguages.ts';
 import Toast from '../../utills/hooks/useToast.tsx';
+import { decryptHashFiles } from '../../utills/services/hashFiles.ts';
 
 const FileExplorer = () => {
   const [isAddingNewFile, setIsAddingNewFile] = useState(false);
@@ -31,7 +32,13 @@ const FileExplorer = () => {
   const setShowToast = useShowToast((state) => state.setShowToast);
 
   const refreshFiles = async () => {
-    const files: file[] = await executeIDB(file);
+    let files: file[] ;
+    if(window.location.hash){
+      files = decryptHashFiles();
+      console.log(files);
+    }else{
+      files = await executeIDB(file);
+    }
     setFiles(files);
     await sessionStorage.put("files", files);
   }

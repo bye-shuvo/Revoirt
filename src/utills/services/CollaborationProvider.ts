@@ -8,7 +8,7 @@ import type { file } from "../../states/store";
 //.env variables
 const wsServerUrl = import.meta.env.VITE_WS_SERVER_URL;
 
-export const useCollaboration = (editorRef : React.RefObject<editor.IStandaloneCodeEditor | null >, currentFilesRef : React.RefObject<file[] | null> , isCollaborating : React.RefObject<boolean> , editorDidMount : boolean , path : string) => {
+export const useEditorCollaboration = (editorRef : React.RefObject<editor.IStandaloneCodeEditor | null >, currentFilesRef : React.RefObject<file[] | null> , isCollaborating : React.RefObject<boolean> , editorDidMount : boolean , path : string) => {
 
  //yjs implementation for collaborative code editor
   // Yjs documents are collections of shared objects that sync automatically.
@@ -30,7 +30,6 @@ export const useCollaboration = (editorRef : React.RefObject<editor.IStandaloneC
     })
 
     const ytext = ydocument.getText(currentFile?.id); //shared text type
-    const yarray = ydocument.getArray(); //shared array type
 
     let binding: MonacoBinding | null = null;
 

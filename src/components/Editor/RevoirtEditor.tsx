@@ -8,7 +8,7 @@ import { useSessionStorage } from "../../utills/hooks/useSessionStorage.ts";
 import useDebounce from '../../utills/hooks/useDebounce.tsx';
 import EditorNavigator from './EditorNavigator.tsx';
 import EditorFallback from './EditorFallback.tsx';
-import { useCollaboration } from '../../utills/services/CollaborationProvider.ts';
+import { useEditorCollaboration } from '../../utills/services/CollaborationProvider.ts';
 
 const RevoirtEditor = () => {
   const [file, setFile] = useState<file>();
@@ -174,7 +174,7 @@ const RevoirtEditor = () => {
   }, [file, unsavedfilePaths]);
 
 //yjs implementation for collaborative editor
-  useCollaboration(editorRef , currentFilesRef , isCollaborating ,editorDidMount , path);
+  useEditorCollaboration(editorRef , currentFilesRef , isCollaborating ,editorDidMount , path);
 
   return (
     <>
