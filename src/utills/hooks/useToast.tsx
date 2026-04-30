@@ -9,7 +9,7 @@ interface position {
 
 type toastType = ["success" | "error" | "warning" | "general"];
 
-const Toast = ({ type, message, duration, onDone, top, left, bottom, right }: { type: toastType | string , message: string, duration: number, onDone: Function, top?: string, left?: string, bottom?: string, right?: string }) => {
+const Toast = ({ type, message, duration, onDone, top, left, bottom, right }: { type: toastType | string , message: string, duration: number, onDone?: Function, top?: string, left?: string, bottom?: string, right?: string }) => {
   const [delay, setDelay] = useState<number | undefined>(100);
   const timerRef = useRef<number>(null);
 

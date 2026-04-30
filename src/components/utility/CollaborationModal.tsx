@@ -1,11 +1,26 @@
-import { useEffect, useRef } from "react"
-import { useIsCollaborating } from "../../states/store";
+import { useEffect, useRef, useState } from "react"
+import { useIsCollaborating } from "../../states/store.ts";
+import useDebounce from "../../utills/hooks/useDebounce.tsx";
+import Toast from "../../utills/hooks/useToast.tsx";
 
 const CollaborationModal = () => {
-
+  const link = "http://localhost:5173/#room="
+  const [organizationName, setOrganizationName] = useState<string>("");
+  const [sharedLink, setSharedLink] = useState<string>(link);
+  const [isSessionStarted, setIsSessionStarted] = useState<boolean>(false);
+  const [isCopied , setISCopied] = useState<boolean>(false);
+  //global states
   const setIsCollaborating = useIsCollaborating((state) => state.setIsCollaborating);
 
+  //Ref objects
   const islandRef = useRef<HTMLDivElement>(null);
+
+  //hooks
+
+  const debounce = useDebounce();
+
+  //Handler functions
+
   const handleModalClick = (e: Event) => {
     if (
       islandRef.current &&
@@ -18,25 +33,50 @@ const CollaborationModal = () => {
     } else return;
   }
 
+  const handleOrganizationNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOrganizationName(e.target.value);
+  }
+
+  const handleSessionStart = () => {
+    setIsSessionStarted(true);
+  }
+
+  //Side Effects
+
   useEffect(() => {
     document.addEventListener('mousedown', handleModalClick);
     return () => document.removeEventListener('mousedown', handleModalClick);
   }, []);
 
+  useEffect(() => {
+    if (!organizationName) return;
+    const roomId = `${link}${organizationName}-${Date().replace("GMT+0600 (Bangladesh Standard Time)", '').split(' ').join("-")}`
+    setSharedLink(roomId);
+    return () => setSharedLink(link);
+  }, [organizationName]);
+
   return (
-    <div ref={islandRef} className="absolute left-1/2 right-1/2 -translate-x-1/2 -translate-y-1/3 bg-mist-700 h-[70%] w-[35%] z-100 p-10 text-white flex flex-col items-center border border-gray-400">
-      <h2 className="text-3xl text-center font-bold">Live Collaboration</h2>
-      <p className="text-sm text-center">Invite people to join the live editor</p>
-      <div id="organization-creation" className="mt-5">
-        <h3 className="mb-2">Enter your desired organization name</h3>
-        <input type="text" placeholder="Type here" className="p-1 outline-2 outline-gray-600 w-full" />
-        <p className="mt-5">share the below link for live Collaboration</p>
-        <input type="text" className="p-1 outline-2 outline-gray-600 mr-2 w-[70%]"/>
-        <button className="bg-sky-500 p-1.5 border-b-2 border-sky-600 active:border-0 w-[25%]">Copy Link</button>
+    <>
+      {
+        (isSessionStarted && organizationName) ? <Toast type={"success"} message="session started" duration={1500} onDone={() => setIsSessionStarted(false)} bottom="5%" left="50%" /> : (isSessionStarted && !organizationName) && <Toast type={"error"} message="Organization name is required" duration={1500} onDone={() => setIsSessionStarted(false)} bottom="5%" left="50%" />
+      }
+      {
+        isCopied && <Toast type={"success"} message="Copied!!!" duration={1000} onDone={() => setISCopied(false)} bottom="5%" left="50%"/>
+      }
+      <div ref={islandRef} className="absolute left-1/2 right-1/2 -translate-x-1/2 -translate-y-1/3 bg-mist-700 h-[70%] w-[35%] z-100 p-10 text-white flex flex-col items-center border border-gray-400 gap-5">
+        <h2 className="text-3xl text-center font-bold">Live Collaboration</h2>
+        <p className="text-sm text-center">Invite people to join the live editor</p>
+        <div id="organization-creation" className="mt-10">
+          <h3 className="mb-2">Enter your desired organization name</h3>
+          <input type="text" placeholder="Type here" className="p-1 outline-2 outline-gray-600 w-full" onChange={handleOrganizationNameChange} />
+          <p className="mt-10">Share the below link for live Collaboration</p>
+          <input type="text" className="p-1 outline-2 outline-gray-600 mr-2 w-[70%]" value={sharedLink} readOnly />
+          <button className="bg-sky-500 p-1.5 border-b-2 border-sky-600 active:border-0 w-[25%]" onClick={() => {window.navigator.clipboard.writeText(sharedLink); setISCopied(true)} }>Copy Link</button>
+        </div>
+        <button className="session-start mt-10 p-2 bg-purple-600 border-b-3 border-purple-800 active:border-0 cursor-pointer" onClick={handleSessionStart}>start session</button>
+        <p id="description" className="mt-10 text-sm p-5 flex bg-sky-700/50"><svg className="shrink-0 h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path className="fill-sky-500" d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zM224 160a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm-8 64l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24z" /></svg> enter you desired organization name, then start the session, copy and share the link with people wants to join you and collaborate.</p>
       </div>
-      <button className="session-start m-10 p-2 bg-purple-600 border-b-3 border-purple-800 active:border-0 cursor-pointer">start session</button>
-      <p id="description" className="mt-10 text-sm p-5 flex bg-sky-700/50"><svg className="shrink-0 h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path className="fill-sky-500" d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zM224 160a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm-8 64l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24z"/></svg> enter you desired organization name, then start the session, copy and share the link with people wants to join you and collaborate.</p>
-    </div>
+    </>
   )
 }
 
