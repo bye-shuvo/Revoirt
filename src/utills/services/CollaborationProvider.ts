@@ -29,7 +29,8 @@ export const useCollaboration = (editorRef : React.RefObject<editor.IStandaloneC
       console.log(event.status) // logs "connected" or "disconnected"
     })
 
-    const type = ydocument.getText(currentFile?.id);
+    const ytext = ydocument.getText(currentFile?.id); //shared text type
+    const yarray = ydocument.getArray(); //shared array type
 
     let binding: MonacoBinding | null = null;
 
@@ -38,13 +39,14 @@ export const useCollaboration = (editorRef : React.RefObject<editor.IStandaloneC
         if (editorRef.current) {
           binding?.destroy();
           isCollaborating.current = true;
-          binding = new MonacoBinding(type, model, new Set([editorRef.current]), provider.awareness);
-        }
-        if (type.length === 0) {
+          binding = new MonacoBinding(ytext, model, new Set([editorRef.current]), provider.awareness);
+        } else return ;
+        if (ytext.length === 0) {
           const sharedFile = currentFilesRef.current?.find((f) => f.path === path);
-          sharedFile && type.insert(0, sharedFile?.content);
-        }
+          sharedFile && ytext.insert(0, sharedFile?.content);
+        } else return ;
       }
+      else return ;
     }
 
     provider.on('sync', handleSync);
