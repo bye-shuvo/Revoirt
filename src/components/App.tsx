@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { Activity, lazy, Suspense } from "react";
 import { Group, Panel, Separator, usePanelRef, type PanelSize } from "react-resizable-panels";
 
 import FileExplorer from "./Explorer/FileExplorer.tsx";
@@ -19,7 +19,7 @@ const App = () => {
   return (
     <main className="h-screen w-screen flex flex-col justify-end font-jetbrains-mono">
       {
-        isCollaborating && <><CollaborationModal /><div id="overlay" className="absolute h-full w-full top-0 left-0 bg-neutral-900/10 z-50"></div></>
+        <Activity mode={isCollaborating ? "visible" : "hidden"}><CollaborationModal /><div id="overlay" className="absolute h-full w-full top-0 left-0 bg-neutral-900/10 z-50"></div></Activity>
       }
       <Navigation />
       <Group
