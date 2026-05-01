@@ -5,6 +5,7 @@ import { WebsocketProvider } from 'y-websocket';
 import { editor } from "monaco-editor";
 import type { file } from "../../states/store";
 import { useSessionStorage } from "../hooks/useSessionStorage";
+import { putAllFiles } from "../hooks/useIDB";
 
 //session storage hook initialized
 const sessionStorage = new useSessionStorage();
@@ -79,6 +80,7 @@ export const useFilesCollaboration = (roomId : string , setFiles : (files : file
       }
       setFiles(yarray.toArray());
       await sessionStorage.put('files' , yarray.toArray());
+      putAllFiles(yarray.toArray());
     }
   });
 
