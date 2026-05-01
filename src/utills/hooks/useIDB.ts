@@ -27,7 +27,7 @@ const openDB = (): Promise<IDBDatabase> => {
     })
 }
 
-export const putFile = async (file: object) => {
+export const putFile = async (file: file) : Promise<void> => {
     const db = await openDB();
 
     const tx = db.transaction("files", "readwrite");
@@ -36,6 +36,24 @@ export const putFile = async (file: object) => {
     await promisifyRequest(store.put(file));
 
     await new Promise((resolve, reject) => {
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+        tx.oncomplete = () => resolve(tx.db);
+    })
+}
+
+export const putAllFiles = async (files : file[] | undefined) : Promise<void> => {
+    if(!files) return ;
+    const db = await openDB();
+    const tx = db.transaction('files' , 'readwrite');
+    const store = tx.objectStore('files');
+    
+    //Fire the puts without await - queue them on the same transaction
+    for (const file of files){
+        store.put(file);
+    }
+
+    await new Promise((resolve , reject) => {
         tx.onerror = () => reject(tx.error);
         tx.onabort = () => reject(tx.error);
         tx.oncomplete = () => resolve(tx.db);
