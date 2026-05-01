@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react"
 import { useFiles, useIsCollaborating } from "../../states/store.ts";
 // import useDebounce from "../../utills/hooks/useDebounce.tsx";
 import Toast from "../../utills/hooks/useToast.tsx";
-import { encryptHashFiles } from "../../utills/services/hashFiles.ts";
+import { encryptRoomId } from "../../utills/services/hashRoomId.ts";
+import { useFilesCollaboration } from "../../utills/services/CollaborationProvider.ts";
 
 const CollaborationModal = () => {
   const link = "http://localhost:5173/app/#room="
@@ -14,6 +15,7 @@ const CollaborationModal = () => {
   //global states
   const setIsCollaborating = useIsCollaborating((state) => state.setIsCollaborating);
   const files = useFiles((state) => state.files);
+  const setFiles = useFiles((state) => state.setFiles);
 
   //Ref objects
   const islandRef = useRef<HTMLDivElement>(null);
@@ -42,11 +44,15 @@ const CollaborationModal = () => {
 
   const handleSessionStart = async () => {
     setIsSessionClicked(true);
-    if(organizationName){
+    if (organizationName) {
       setIsSessionStarted(true);
-      await encryptHashFiles(files); //creates hash of the files
-    } 
-    else return ;
+      const roomId = `${organizationName}-${Date()}`
+      const roomIdHash = await encryptRoomId(roomId); //creates hash of the files
+      const generatedLink = `${link}${organizationName}-${roomIdHash}`;
+      setSharedLink(generatedLink);
+      useFilesCollaboration(roomIdHash, setFiles,  files);
+    }
+    else return;
   }
 
   //Side Effects
@@ -57,16 +63,9 @@ const CollaborationModal = () => {
   }, []);
 
   useEffect(() => {
-    if (!organizationName) return;
-    (async () => {
-      const cookie = await window.cookieStore.get('files');
-      const filesHash = cookie?.value ?? '';
-      const roomId = `${link}${organizationName}-${filesHash}`
-      setSharedLink(roomId)
-    }
-    )();
+    if (!organizationName) { setSharedLink(link); setIsSessionStarted(false); }
     return () => setSharedLink(link);
-  }, [organizationName , isSessionStarted]);
+  }, [organizationName]);
 
   return (
     <>
