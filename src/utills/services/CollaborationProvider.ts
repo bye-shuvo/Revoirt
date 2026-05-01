@@ -59,3 +59,14 @@ export const useEditorCollaboration = (editorRef : React.RefObject<editor.IStand
     }
   }, [path, editorDidMount]);
 }
+
+export const useFilesCollaboration = (roomId : string , files?: file[] | undefined) => {
+  if(!roomId) return ;
+
+  const ydoc = new Y.Doc();
+  const provider = new WebsocketProvider(wsServerUrl , roomId , ydoc);
+  const yarray = ydoc.getArray(roomId);
+
+  if(!files) return ;
+  yarray.insert(0 , files);
+}
