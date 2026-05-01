@@ -4,6 +4,10 @@ import { MonacoBinding } from "y-monaco";
 import { WebsocketProvider } from 'y-websocket';
 import { editor } from "monaco-editor";
 import type { file } from "../../states/store";
+import { useSessionStorage } from "../hooks/useSessionStorage";
+
+//session storage hook initialized
+const sessionStorage = new useSessionStorage();
 
 //.env variables
 const wsServerUrl = import.meta.env.VITE_WS_SERVER_URL;
@@ -60,13 +64,22 @@ export const useEditorCollaboration = (editorRef : React.RefObject<editor.IStand
   }, [path, editorDidMount]);
 }
 
-export const useFilesCollaboration = (roomId : string , files?: file[] | undefined) => {
+export const useFilesCollaboration = (roomId : string , setFiles : (files : file[]) => void , files? : file[] | undefined) => {
+
   if(!roomId) return ;
 
   const ydoc = new Y.Doc();
   const provider = new WebsocketProvider(wsServerUrl , roomId , ydoc);
-  const yarray = ydoc.getArray(roomId);
+  const yarray = ydoc.getArray<file>(roomId);
 
-  if(!files) return ;
-  yarray.insert(0 , files);
+  provider.on('sync' , async (isSyncronized : boolean) => {
+    if(isSyncronized){
+      if(files && yarray.length === 0){
+        yarray.insert(0 , files);
+      }
+      setFiles(yarray.toArray());
+      await sessionStorage.put('files' , yarray.toArray());
+    }
+  });
+
 }
