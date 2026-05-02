@@ -4,6 +4,7 @@ import { useFiles, useIsCollaborating, useRemoteUserCount } from "../../states/s
 import Toast from "../../utills/hooks/useToast.tsx";
 import { encryptRoomId } from "../../utills/services/hashRoomId.ts";
 import { useFilesCollaboration } from "../../utills/services/CollaborationProvider.ts";
+import { changeURLHash } from "../../utills/services/changeURL.ts";
 
 const CollaborationModal = () => {
   const link = import.meta.env.VITE_APP_SERVER_URL;
@@ -49,8 +50,9 @@ const CollaborationModal = () => {
     if (organizationName) {
       setIsSessionStarted(true);
       const roomId = `${organizationName}-${Date()}`
-      const roomIdHash = await encryptRoomId(roomId); //creates hash of the files
+      const roomIdHash = await encryptRoomId(roomId); //creates hash for the files
       const generatedLink = `${link}${organizationName}-${roomIdHash}`;
+      changeURLHash(`/#room=${organizationName}-${roomIdHash}`);
       setSharedLink(generatedLink);
       cleanupRef.current = useFilesCollaboration(roomIdHash, setFiles, files, setRemoteUserCount);
     }

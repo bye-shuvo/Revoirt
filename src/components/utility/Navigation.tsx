@@ -6,13 +6,14 @@ const Navigation = () => {
 
   const setIsCollaborating = useIsCollaborating((state) => state.setIsCollaborating);
   const remoteUserCount = useRemoteUserCount((state) => state.remoteUserCount);
+  console.log(remoteUserCount);
 
   return (
     <nav className="bg-mist-900 h-[7%] w-full flex items-center">
       <ul className="h-full w-full flex justify-between items-center px-3">
         <li id="logo"><h1 className='font-saira-stencil-one text-3xl text-white cursor-pointer' title="Code together | Build Fast">REVOIRT</h1></li>
         <li id="right-utils" className="flex items-center gap-10 h-full">
-          <p id="connected-users" className="flex gap-2 items-center text-green-600"><span id="connection-indicator" className="shrink-0 h-1.5 w-1.5 rounded-full bg-green-400 animate-ping"></span>{remoteUserCount} user connected</p>
+          <div id="connected-users" className="flex gap-2 items-center text-green-600">{(remoteUserCount > 0) && (<p><span id="connection-indicator" className="shrink-0 h-1.5 w-1.5 rounded-full bg-green-400 animate-ping"></span>{remoteUserCount} user connected</p>)}</div>
           <div id="joined-users" className="flex relative justify-center items-center w-fit h-full">
             {
               Array.from({ length: 5 }).map((_, index) => {
