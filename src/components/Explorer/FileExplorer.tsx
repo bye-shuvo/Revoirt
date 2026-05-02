@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { deleteFile, executeIDB } from "../../utills/hooks/useIDB.ts";
-import { useDeletedFilePath, useFilePath, useFiles, useShowToast, type file } from '../../states/store.ts';
+import { useDeletedFilePath, useFilePath, useFiles, useRemoteUserCount, useShowToast, type file } from '../../states/store.ts';
 import { useSessionStorage } from '../../utills/hooks/useSessionStorage.ts';
 import { monacoLanguages } from '../../types/monacoLanguages.ts';
 import Toast from '../../utills/hooks/useToast.tsx';
@@ -18,6 +18,7 @@ const FileExplorer = () => {
   const renameFile = useRef<HTMLLIElement>(null);
   const changableFileRef = useRef<file | undefined>(undefined);
   const contextMenuRef = useRef<HTMLDivElement>(null);
+  const cleanupRef = useRef<(() => void) | undefined>(undefined);
 
   //SessionStorage Class Object
   const sessionStorage = new useSessionStorage();
@@ -31,11 +32,12 @@ const FileExplorer = () => {
   const setDeletedPath = useDeletedFilePath((state) => state.setDeletedPath);
   const showToast = useShowToast((state) => state.showToast);
   const setShowToast = useShowToast((state) => state.setShowToast);
+  const setRemoteUserCount = useRemoteUserCount((state) => state.setRemoteUserCount);
 
   const refreshFiles = async () => {
     const roomId = decryptRoomId();
     if (roomId) {
-      useFilesCollaboration(roomId , setFiles);
+      cleanupRef.current = useFilesCollaboration(roomId , setFiles, undefined , setRemoteUserCount);
     }
     else {
       const files: file[] = await executeIDB(file);
@@ -186,6 +188,8 @@ const FileExplorer = () => {
   useEffect(() => {
     reloadFiles();
   }, []);
+
+  useEffect(() => () => cleanupRef?.current?.() , []);
 
   return (
     <aside className='h-full bg-[#181818]'>

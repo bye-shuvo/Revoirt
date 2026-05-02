@@ -3,9 +3,10 @@ import * as Y from "yjs";
 import { MonacoBinding } from "y-monaco";
 import { WebsocketProvider } from 'y-websocket';
 import { editor } from "monaco-editor";
-import type { file } from "../../states/store";
+import { type file } from "../../states/store";
 import { useSessionStorage } from "../hooks/useSessionStorage";
 import { putAllFiles } from "../hooks/useIDB";
+import { getRemoteUsersCount } from "./getRemoteUser";
 
 //session storage hook initialized
 const sessionStorage = new useSessionStorage();
@@ -13,11 +14,11 @@ const sessionStorage = new useSessionStorage();
 //.env variables
 const wsServerUrl = import.meta.env.VITE_WS_SERVER_URL;
 
-export const useEditorCollaboration = (editorRef : React.RefObject<editor.IStandaloneCodeEditor | null >, currentFilesRef : React.RefObject<file[] | null> , isCollaborating : React.RefObject<boolean> , editorDidMount : boolean , path : string) => {
+export const useEditorCollaboration = (editorRef: React.RefObject<editor.IStandaloneCodeEditor | null>, currentFilesRef: React.RefObject<file[] | null>, isCollaborating: React.RefObject<boolean>, editorDidMount: boolean, path: string) => {
 
- //yjs implementation for collaborative code editor
+  //yjs implementation for collaborative code editor
   // Yjs documents are collections of shared objects that sync automatically.
- return useEffect(() => {
+  return useEffect(() => {
     if (!editorRef.current) return;
     const model = editorRef.current?.getModel();
     if (!model) return;
@@ -44,13 +45,13 @@ export const useEditorCollaboration = (editorRef : React.RefObject<editor.IStand
           binding?.destroy();
           isCollaborating.current = true;
           binding = new MonacoBinding(ytext, model, new Set([editorRef.current]), provider.awareness);
-        } else return ;
+        } else return;
         if (ytext.length === 0) {
           const sharedFile = currentFilesRef.current?.find((f) => f.path === path);
           sharedFile && ytext.insert(0, sharedFile?.content);
-        } else return ;
+        } else return;
       }
-      else return ;
+      else return;
     }
 
     provider.on('sync', handleSync);
@@ -65,23 +66,37 @@ export const useEditorCollaboration = (editorRef : React.RefObject<editor.IStand
   }, [path, editorDidMount]);
 }
 
-export const useFilesCollaboration = (roomId : string , setFiles : (files : file[]) => void , files? : file[] | undefined) => {
+export const useFilesCollaboration = (roomId: string, setFiles: (files: file[]) => void, files?: file[] | undefined, setRemoteUserCount?: (remoteUserCount: number) => void) => {
 
-  if(!roomId) return ;
+  if (!roomId) return;
 
   const ydoc = new Y.Doc();
-  const provider = new WebsocketProvider(wsServerUrl , roomId , ydoc);
-  const yarray = ydoc.getArray<file>(roomId);
+  const provider = new WebsocketProvider(wsServerUrl, roomId, ydoc);
+  const yarray = ydoc.getArray<file>(roomId); //shared array type
 
-  provider.on('sync' , async (isSyncronized : boolean) => {
-    if(isSyncronized){
-      if(files && yarray.length === 0){
-        yarray.insert(0 , files);
+  let cleanupAwareness : (() => void) | undefined ;
+  if (setRemoteUserCount) {
+    cleanupAwareness = getRemoteUsersCount(provider, setRemoteUserCount);
+  }
+
+  const handleSync = async (isSyncronized: boolean) => {
+    if (isSyncronized) {
+      if (files && yarray.length === 0) {
+        yarray.insert(0, files);
       }
       setFiles(yarray.toArray());
-      await sessionStorage.put('files' , yarray.toArray());
+      await sessionStorage.put('files', yarray.toArray());
       putAllFiles(yarray.toArray());
     }
-  });
+    else return;
+  }
 
+  provider.on('sync', handleSync);
+
+  return () => {
+    cleanupAwareness?.();
+    provider.off('sync', handleSync);
+    provider.destroy();
+    ydoc.destroy();
+  }
 }

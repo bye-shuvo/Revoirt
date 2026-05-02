@@ -115,3 +115,14 @@ export const useIsCollaborating = create<isCollaborating>((set) => ({
     isCollaborating : false ,
     setIsCollaborating : (next) => set({isCollaborating : next})
 }))
+
+
+type remoteUserCount = {
+    remoteUserCount : number;
+    setRemoteUserCount : (next : number) => void ;
+}
+
+export const useRemoteUserCount = create<remoteUserCount>((set) => ({
+ remoteUserCount : 0 ,
+ setRemoteUserCount : (next : number) => set({remoteUserCount : next})
+}))
