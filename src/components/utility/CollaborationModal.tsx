@@ -53,7 +53,7 @@ const CollaborationModal = () => {
       const roomIdHash = await encryptRoomId(roomId); //creates hash for the files
       changeURLHash(`room=${organizationName.trim()}-${encodeURIComponent(roomIdHash)}`);
       setSharedLink(window.location.href);
-      cleanupRef.current = useFilesCollaboration(roomIdHash, setFiles, files, setRemoteUserCount);
+      cleanupRef.current = useFilesCollaboration(roomIdHash, setFiles, setRemoteUserCount , files);
     }
     else return;
   }
