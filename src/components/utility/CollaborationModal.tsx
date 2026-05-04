@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react"
-import { useFiles, useIsCollaborating, useRemoteUserCount } from "../../states/store.ts";
+import { useIsCollaborating, useIsSessionStarted } from "../../states/store.ts";
 // import useDebounce from "../../utills/hooks/useDebounce.tsx";
 import Toast from "../../utills/hooks/useToast.tsx";
 import { encryptRoomId } from "../../utills/services/hashRoomId.ts";
-import { useFilesCollaboration } from "../../utills/services/CollaborationProvider.ts";
 import { changeURLHash } from "../../utills/services/changeURL.ts";
 
 const CollaborationModal = () => {
@@ -11,16 +10,13 @@ const CollaborationModal = () => {
 
   const [organizationName, setOrganizationName] = useState<string>("");
   const [sharedLink, setSharedLink] = useState<string>(link);
-  const [isSessionStarted, setIsSessionStarted] = useState<boolean>(false);
   const [isSessionClicked, setIsSessionClicked] = useState<boolean>(false);
   const [isCopied, setISCopied] = useState<boolean>(false);
 
   //global states
   const setIsCollaborating = useIsCollaborating((state) => state.setIsCollaborating);
-  const files = useFiles((state) => state.files);
-  const setFiles = useFiles((state) => state.setFiles);
-  const setRemoteUserCount = useRemoteUserCount((state) => state.setRemoteUserCount);
-
+  const isSessionStarted = useIsSessionStarted((state) => state.isSessionStarted);
+  const setIsSessionStarted = useIsSessionStarted((state) => state.setIsSessionStarted);
 
   //Ref objects
   const islandRef = useRef<HTMLDivElement>(null);
@@ -53,7 +49,6 @@ const CollaborationModal = () => {
       const roomIdHash = await encryptRoomId(roomId); //creates hash for the files
       changeURLHash(`room=${organizationName.trim()}-${encodeURIComponent(roomIdHash)}`);
       setSharedLink(window.location.href);
-      cleanupRef.current = useFilesCollaboration(roomIdHash, setFiles, setRemoteUserCount , files);
     }
     else return;
   }
@@ -69,8 +64,6 @@ const CollaborationModal = () => {
     if (!organizationName) { setSharedLink(link); setIsSessionStarted(false); }
     return () => setSharedLink(link);
   }, [organizationName]);
-
-  useEffect(() => () => cleanupRef.current?.(), []); // cleanup on unmount
 
   return (
     <>

@@ -126,3 +126,13 @@ export const useRemoteUserCount = create<remoteUserCount>((set) => ({
  remoteUserCount : 0 ,
  setRemoteUserCount : (next : number) => set({remoteUserCount : next})
 }))
+
+type IsSessionStarted = {
+    isSessionStarted : boolean;
+    setIsSessionStarted : (next : boolean) => void ;
+}
+
+export const useIsSessionStarted = create<IsSessionStarted>((set) => ({
+ isSessionStarted : false ,
+ setIsSessionStarted : (next : boolean) => set({isSessionStarted : next})
+}))
