@@ -66,7 +66,7 @@ export const useEditorCollaboration = (editorRef: React.RefObject<editor.IStanda
   }, [path, editorDidMount]);
 }
 
-export const useFilesCollaboration = (roomId: string, setFiles: (files: file[]) => void, files?: file[] | undefined, setRemoteUserCount?: (remoteUserCount: number) => void) => {
+export const useFilesCollaboration = (roomId: string, setFiles: (files: file[]) => void, setRemoteUserCount: (remoteUserCount: number) => void , files?: file[]) => {
 
   if (!roomId) return;
 
@@ -75,9 +75,7 @@ export const useFilesCollaboration = (roomId: string, setFiles: (files: file[]) 
   const yarray = ydoc.getArray<file>(roomId); //shared array type
 
   let cleanupAwareness : (() => void) | undefined ;
-  if (setRemoteUserCount) {
-    cleanupAwareness = getRemoteUsersCount(provider, setRemoteUserCount);
-  }
+  cleanupAwareness = getRemoteUsersCount(provider, setRemoteUserCount);
 
   const handleSync = async (isSyncronized: boolean) => {
     if (isSyncronized) {

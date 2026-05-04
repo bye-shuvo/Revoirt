@@ -37,7 +37,7 @@ const FileExplorer = () => {
   const refreshFiles = async () => {
     const roomId = decryptRoomId();
     if (roomId) {
-      cleanupRef.current = useFilesCollaboration(roomId , setFiles, undefined , setRemoteUserCount);
+      cleanupRef.current = useFilesCollaboration(roomId , setFiles, setRemoteUserCount);
     }
     else {
       const files: file[] = await executeIDB(file);
