@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { deleteFile, executeIDB } from "../../utills/hooks/useIDB.ts";
-import { useDeletedFilePath, useFilePath, useFiles, useRemoteUserCount, useShowToast, type file } from '../../states/store.ts';
+import { useDeletedFilePath, useFilePath, useFiles, useRemoteUserCount, useShowToast, type file, useIsSessionStarted } from '../../states/store.ts';
 import { useSessionStorage } from '../../utills/hooks/useSessionStorage.ts';
 import { monacoLanguages } from '../../types/monacoLanguages.ts';
 import Toast from '../../utills/hooks/useToast.tsx';
@@ -33,11 +33,12 @@ const FileExplorer = () => {
   const showToast = useShowToast((state) => state.showToast);
   const setShowToast = useShowToast((state) => state.setShowToast);
   const setRemoteUserCount = useRemoteUserCount((state) => state.setRemoteUserCount);
+  const isSessionStarted = useIsSessionStarted((state) => state.isSessionStarted);
 
   const refreshFiles = async () => {
     const roomId = decryptRoomId();
     if (roomId) {
-      cleanupRef.current = useFilesCollaboration(roomId , setFiles, setRemoteUserCount);
+      cleanupRef.current = useFilesCollaboration(roomId , setFiles, setRemoteUserCount, files);
     }
     else {
       const files: file[] = await executeIDB(file);
@@ -167,7 +168,6 @@ const FileExplorer = () => {
     }
   }
 
-
   //Side Effect perform functions
   useEffect(() => {
     document.addEventListener("mousedown", createFileEvent);
@@ -188,6 +188,11 @@ const FileExplorer = () => {
   useEffect(() => {
     reloadFiles();
   }, []);
+
+  useEffect(() => {
+    if(!isSessionStarted) return ;
+    refreshFiles();
+  } , [isSessionStarted]);
 
   useEffect(() => () => cleanupRef?.current?.() , []);
 
