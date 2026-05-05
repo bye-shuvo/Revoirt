@@ -44,11 +44,11 @@ const CollaborationModal = () => {
     cleanupRef?.current?.();
     setIsSessionClicked(true);
     if (organizationName) {
-      setIsSessionStarted(true);
       const roomId = `${organizationName.trim()}-${Date.now().toString()}`
       const roomIdHash = await encryptRoomId(roomId); //creates hash for the files
       changeURLHash(`room=${organizationName.trim()}-${encodeURIComponent(roomIdHash)}`);
       setSharedLink(window.location.href);
+      setIsSessionStarted(true);
     }
     else return;
   }

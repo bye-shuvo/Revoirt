@@ -36,8 +36,11 @@ const FileExplorer = () => {
   const isSessionStarted = useIsSessionStarted((state) => state.isSessionStarted);
 
   const refreshFiles = async () => {
-    const roomId = decryptRoomId();
+    cleanupRef.current?.();
+    const roomId = await decryptRoomId();
+    console.log(roomId);
     if (roomId) {
+      console.log("provider run");
       cleanupRef.current = useFilesCollaboration(roomId , setFiles, setRemoteUserCount, files);
     }
     else {
