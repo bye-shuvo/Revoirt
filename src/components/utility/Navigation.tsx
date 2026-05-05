@@ -1,11 +1,20 @@
+import React from "react";
 import { useIsCollaborating, useRemoteUserCount } from "../../states/store"
 
 const Navigation = () => {
 
   //global states
 
+
   const setIsCollaborating = useIsCollaborating((state) => state.setIsCollaborating);
-  const remoteUserCount = useRemoteUserCount((state) => state.remoteUserCount);
+  const count = useRemoteUserCount((state) => state.remoteUserCount);
+  let remoteUserCount : number ;
+  if (count ===  0) {
+    remoteUserCount = Number(window.sessionStorage.getItem('connected_users'));
+  }
+  else{
+    remoteUserCount = count ;
+  }
   console.log(remoteUserCount);
 
   return (
