@@ -34,19 +34,18 @@ const FileExplorer = () => {
   const setShowToast = useShowToast((state) => state.setShowToast);
   const setRemoteUserCount = useRemoteUserCount((state) => state.setRemoteUserCount);
   const isSessionStarted = useIsSessionStarted((state) => state.isSessionStarted);
-
+  
   const refreshFiles = async () => {
     cleanupRef.current?.();
     const roomId = await decryptRoomId();
-    console.log(roomId);
     if (roomId) {
-      console.log("provider run");
       cleanupRef.current = useFilesCollaboration(roomId , setFiles, setRemoteUserCount, files);
     }
     else {
       const files: file[] = await executeIDB(file);
       setFiles(files);
       await sessionStorage.put("files", files);
+      window.sessionStorage.setItem('connected_users' , JSON.stringify(0));
     }
 
   }
@@ -55,6 +54,8 @@ const FileExplorer = () => {
     try {
       const files: file[] = await sessionStorage.get("files");
       setFiles(files);
+      const roomId = await decryptRoomId();
+      !roomId && window.sessionStorage.setItem('connected_users' , JSON.stringify(0));
     } catch {
       await refreshFiles();
     }
