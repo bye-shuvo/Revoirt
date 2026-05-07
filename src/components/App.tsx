@@ -1,4 +1,4 @@
-import { Activity, lazy, Suspense } from "react";
+import react , { Activity, lazy, Suspense } from "react";
 import { Group, Panel, Separator, usePanelRef, type PanelSize } from "react-resizable-panels";
 
 import FileExplorer from "./Explorer/FileExplorer.tsx";
