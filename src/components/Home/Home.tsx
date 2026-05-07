@@ -1,76 +1,118 @@
 import { useState, useEffect } from "react";
 
+const C = {
+  bg:       "#14121A",
+  bgCode:   "#16171D",
+  bgSurface:"#1A1820",
+  surf2:    "#3B3440",
+  border:   "#3B3440",
+  borderMid:"#2E2E32",
+  primary:  "#867E8E",
+  violet:   "#B39AFF",
+  text:     "#FFFFFF",
+  textSec:  "#98989F",
+  textTer:  "#2E2E32",
+  green:    "#22c55e",
+  blue:     "#38bdf8",
+  yellow:   "#EAB308",
+  red:      "#ef4444",
+};
+
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,800;1,400&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{font-family:'JetBrains Mono',monospace!important;background:#181818}
-  ::-webkit-scrollbar{width:3px;background:#111}
-  ::-webkit-scrollbar-thumb{background:#2a2a2a}
+  html{scroll-behavior:smooth;width:100%}
+  body{font-family:'Inter',sans-serif!important;background:${C.bg};width:100%;overflow-x:hidden}
+  ::-webkit-scrollbar{width:3px;background:${C.bg}}
+  ::-webkit-scrollbar-thumb{background:${C.surf2}}
   @keyframes rv-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
   @keyframes rv-slide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
-  @keyframes rv-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @keyframes rv-up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
   @keyframes rv-dot{0%,100%{opacity:.3}50%{opacity:1}}
-  @keyframes rv-glow{0%,100%{opacity:.06}50%{opacity:.14}}
+  @keyframes rv-glow{0%,100%{opacity:.07}50%{opacity:.16}}
   .rv-blink{animation:rv-blink 1.1s step-end infinite}
   .rv-slide{animation:rv-slide .4s ease both}
-  .rv-up{animation:rv-up .5s ease both}
+  .rv-up{animation:rv-up .55s ease both}
   .rv-dot{animation:rv-dot 2s ease-in-out infinite}
   .rv-glow{animation:rv-glow 3s ease-in-out infinite}
+  .nav-link{color:${C.textSec};text-decoration:none;font-size:13px;letter-spacing:.04em;padding:6px 4px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;font-family:'Inter',sans-serif}
+  .nav-link:hover{color:${C.violet};border-bottom-color:${C.primary}}
+  .btn-primary{background:${C.primary};color:#fff;border:2px solid ${C.violet};border-radius:0;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;padding:12px 28px;cursor:pointer;transition:background .15s,border-color .15s}
+  .btn-primary:hover{background:${C.violet};border-color:${C.primary}}
+  .btn-primary:focus{outline:2px solid ${C.violet};outline-offset:2px}
+  .btn-secondary{background:transparent;color:${C.textSec};border:1px solid ${C.surf2};border-radius:0;font-family:'Inter',sans-serif;font-size:12px;letter-spacing:.1em;padding:12px 28px;cursor:pointer;transition:border-color .15s,color .15s}
+  .btn-secondary:hover{border-color:${C.text};color:${C.violet}}
+  .btn-ghost{background:transparent;color:${C.text};border:none;font-family:'Inter',sans-serif;font-size:13px;padding:8px 12px;cursor:pointer;transition:color .15s,background .15s;border-radius:0}
+  .btn-ghost:hover{color:${C.violet};background:rgba(179,154,255,.08)}
+  .card-hover{transition:border-color .2s,box-shadow .2s}
+  .card-hover:hover{border-color:${C.primary}!important;box-shadow:0 20px 25px -5px rgba(179,154,255,.15)!important}
+  .feature-card{transition:border-color .2s,background .15s}
+  .feature-card:hover{background:${C.bgSurface}!important}
+  .file-row:hover{color:${C.textSec}!important;background:rgba(179,154,255,.04)!important}
+  .collab-row:hover{background:rgba(179,154,255,.04)!important}
+  .foot-link{font-size:9px;color:${C.textTer};text-decoration:none;letter-spacing:.12em;font-family:'JetBrains Mono',monospace;transition:color .15s}
+  .foot-link:hover{color:${C.textSec}}
 `;
 
-const NAV = ["Features", "Docs", "Changelog", "GitHub"];
+const WRAP: React.CSSProperties = {
+  width:"100%",
+  maxWidth:1280,
+  margin:"0 auto",
+  padding:"0 48px",
+};
+
+const NAV  = ["Features","Docs","Changelog","GitHub"];
 
 const LOG_LINES = [
-  { ms:"000", tag:"SYS",  col:"#555",    msg:"revoirt v0.9.1 initializing..." },
-  { ms:"012", tag:"IDB",  col:"#22c55e", msg:"IndexedDB mount OK  ·  17.5 KB" },
-  { ms:"045", tag:"WS",   col:"#38bdf8", msg:"WebSocket handshake  ·  room/alpha-squad" },
-  { ms:"048", tag:"CRDT", col:"#8b5cf6", msg:"Yjs doc loaded  ·  3 peers connected" },
-  { ms:"071", tag:"TERM", col:"#f59e0b", msg:"xterm.js session spawned  ·  shared i/o" },
-  { ms:"089", tag:"FS",   col:"#22c55e", msg:"File tree hydrated  ·  8 entries" },
-  { ms:"093", tag:"MON",  col:"#8b5cf6", msg:"Monaco language server ready  ·  TypeScript" },
-  { ms:"101", tag:"SYNC", col:"#38bdf8", msg:"Initial sync complete  ·  <50 ms" },
-  { ms:"___", tag:"READY",col:"#22c55e", msg:"Session live" },
+  { ms:"000", tag:"SYS",  col:C.textSec, msg:"revoirt v0.9.1 initializing..." },
+  { ms:"012", tag:"IDB",  col:C.green,   msg:"IndexedDB mount OK  ·  17.5 KB" },
+  { ms:"045", tag:"WS",   col:C.blue,    msg:"WebSocket handshake  ·  room/alpha-squad" },
+  { ms:"048", tag:"CRDT", col:C.violet,  msg:"Yjs doc loaded  ·  3 peers connected" },
+  { ms:"071", tag:"TERM", col:C.yellow,  msg:"xterm.js session spawned  ·  shared i/o" },
+  { ms:"089", tag:"FS",   col:C.green,   msg:"File tree hydrated  ·  8 entries" },
+  { ms:"093", tag:"MON",  col:C.violet,  msg:"Monaco language server ready  ·  TypeScript" },
+  { ms:"101", tag:"SYNC", col:C.blue,    msg:"Initial sync complete  ·  <50 ms" },
+  { ms:"___", tag:"READY",col:C.green,   msg:"Session live" },
 ];
 
 const CODE = [
-  [{c:"#c678dd",t:"import "},{c:"#e5e7eb",t:"{ revoirt } "},{c:"#c678dd",t:"from "},{c:"#98c379",t:"'@revoirt/core'"}],
+  [{c:"#B39AFF",t:"import "},{c:C.text,t:"{ revoirt } "},{c:"#B39AFF",t:"from "},{c:C.green,t:"'@revoirt/core'"}],
   [],
-  [{c:"#5c6370",t:"// connect to a collaborative session"}],
-  [{c:"#c678dd",t:"const "},{c:"#61afef",t:"session"},{c:"#e5e7eb",t:" = "},{c:"#c678dd",t:"await "},{c:"#e5e7eb",t:"revoirt."},{c:"#61afef",t:"connect"},{c:"#e5e7eb",t:"({"}],
-  [{c:"#e06c75",t:"  room"},{c:"#e5e7eb",t:": "},{c:"#98c379",t:"'alpha-squad'"},{c:"#e5e7eb",t:","}],
-  [{c:"#e06c75",t:"  collab"},{c:"#e5e7eb",t:": "},{c:"#d19a66",t:"true"},{c:"#e5e7eb",t:","}],
-  [{c:"#e06c75",t:"  terminal"},{c:"#e5e7eb",t:": "},{c:"#d19a66",t:"true"},{c:"#e5e7eb",t:","}],
-  [{c:"#e06c75",t:"  storage"},{c:"#e5e7eb",t:": "},{c:"#98c379",t:"'idb'"}],
-  [{c:"#e5e7eb",t:"})"}],
+  [{c:C.textSec,t:"// connect to a collaborative session"}],
+  [{c:"#B39AFF",t:"const "},{c:C.blue,t:"session"},{c:C.text,t:" = "},{c:"#B39AFF",t:"await "},{c:C.text,t:"revoirt."},{c:C.blue,t:"connect"},{c:C.text,t:"({"}],
+  [{c:C.red,t:"  room"},{c:C.text,t:": "},{c:C.green,t:"'alpha-squad'"},{c:C.text,t:","}],
+  [{c:C.red,t:"  collab"},{c:C.text,t:": "},{c:C.yellow,t:"true"},{c:C.text,t:","}],
+  [{c:C.red,t:"  terminal"},{c:C.text,t:": "},{c:C.yellow,t:"true"},{c:C.text,t:","}],
+  [{c:C.red,t:"  storage"},{c:C.text,t:": "},{c:C.green,t:"'idb'"}],
+  [{c:C.text,t:"})"}],
   [],
-  [{c:"#5c6370",t:"// real-time presence"}],
-  [{c:"#e5e7eb",t:"session."},{c:"#61afef",t:"onJoin"},{c:"#e5e7eb",t:"(("},{c:"#e06c75",t:"u"},{c:"#e5e7eb",t:") => console."},{c:"#61afef",t:"log"},{c:"#e5e7eb",t:"(u."},{c:"#e06c75",t:"name"},{c:"#e5e7eb",t:"))"}],
+  [{c:C.textSec,t:"// real-time presence"}],
+  [{c:C.text,t:"session."},{c:C.blue,t:"onJoin"},{c:C.text,t:"(("},{c:C.red,t:"u"},{c:C.text,t:") => console."},{c:C.blue,t:"log"},{c:C.text,t:"(u."},{c:C.red,t:"name"},{c:C.text,t:")"}],
 ];
 
 const CURSORS = [
-  { i:"AK", name:"Arjun", color:"#8b5cf6", line:4 },
-  { i:"SR", name:"Sara",  color:"#38bdf8", line:7 },
-  { i:"JK", name:"Jake",  color:"#22c55e", line:11 },
+  { i:"AK", name:"Arjun", color:C.violet, line:4 },
+  { i:"SR", name:"Sara",  color:C.blue,   line:7 },
+  { i:"JK", name:"Jake",  color:C.green,  line:11 },
 ];
 
 const FILES = [
-  { icon:"▾", n:"src",          d:0, dir:true },
-  { icon:"·", n:"editor.ts",   d:1, active:true },
-  { icon:"·", n:"session.ts",  d:1 },
-  { icon:"·", n:"terminal.ts", d:1 },
-  { icon:"·", n:"idb.ts",      d:1 },
-  { icon:"·", n:"types.ts",    d:1 },
-  { icon:"·", n:".env",        d:0 },
-  { icon:"·", n:"package.json",d:0 },
+  { icon:"▾", n:"src",           d:0, dir:true },
+  { icon:"·", n:"editor.ts",    d:1, active:true },
+  { icon:"·", n:"session.ts",   d:1 },
+  { icon:"·", n:"terminal.ts",  d:1 },
+  { icon:"·", n:"idb.ts",       d:1 },
+  { icon:"·", n:"types.ts",     d:1 },
+  { icon:"·", n:".env",         d:0 },
+  { icon:"·", n:"package.json", d:0 },
 ];
 
 const FEATURES = [
-  { id:"F1", accent:"#8b5cf6", tag:"monaco · yjs · ws",           span:2, title:"Collaborative Editor",  body:"Monaco-powered, real-time CRDT sync. Named cursors, shared selections, conflict-free replicated edits across every connected session." },
-  { id:"F2", accent:"#38bdf8", tag:"xterm.js · shared i/o",       span:1, title:"Web Terminal",          body:"xterm.js shell — every keystroke shared. Run commands, see output together. No SSH. No setup." },
-  { id:"F3", accent:"#22c55e", tag:"idb · sessionstorage",        span:1, title:"Local File Explorer",   body:"Entire filesystem in IndexedDB + sessionStorage. No uploads. Your files never leave the browser." },
-  { id:"F4", accent:"#f59e0b", tag:"rooms · rbac",                span:1, title:"User Groups & Rooms",   body:"Invite by link, assign roles, restrict writes. Private and public sessions with granular permissions." },
-  { id:"F5", accent:"#ef4444", tag:"<50ms · crdt v2 · offline-first", span:2, title:"Zero-Latency Sync", body:"Sub-50ms WebSocket sync with CRDT. No merge conflicts. Offline-first with auto-reconcile on reconnect." },
+  { id:"F1", accent:C.violet, tag:"monaco · yjs · ws",               span:2, title:"Collaborative Editor", body:"Monaco-powered, real-time CRDT sync. Named cursors, shared selections, conflict-free replicated edits across every connected session." },
+  { id:"F2", accent:C.blue,   tag:"xterm.js · shared i/o",           span:1, title:"Web Terminal",         body:"xterm.js shell — every keystroke shared. Run commands, see output together. No SSH. No setup." },
+  { id:"F3", accent:C.green,  tag:"idb · sessionstorage",            span:1, title:"Local File Explorer",  body:"Entire filesystem in IndexedDB + sessionStorage. No uploads. Your files never leave the browser." },
+  { id:"F4", accent:C.yellow, tag:"rooms · rbac",                    span:1, title:"User Groups & Rooms",  body:"Invite by link, assign roles, restrict writes. Private and public sessions with granular permissions." },
+  { id:"F5", accent:C.red,    tag:"<50ms · crdt v2 · offline-first", span:2, title:"Zero-Latency Sync",   body:"Sub-50ms WebSocket sync with CRDT. No merge conflicts. Offline-first with auto-reconcile on reconnect." },
 ];
 
 const STEPS = [
@@ -79,7 +121,8 @@ const STEPS = [
   { n:"03", title:"Ship Together",    body:"Edit, run the terminal, manage files — zero config, zero latency." },
 ];
 
-const M = "'JetBrains Mono', monospace";
+const MONO = "'JetBrains Mono',monospace";
+const SANS = "'Inter',-apple-system,sans-serif";
 
 export default function Home() {
   const [typed,      setTyped]      = useState("");
@@ -104,274 +147,273 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen overflow-x-hidden text-[#e5e7eb]" style={{background:"#181818", fontFamily:M}}>
+    <div style={{minHeight:"100vh",width:"100%",overflowX:"hidden",background:C.bg,color:C.text,fontFamily:SANS}}>
 
-      {/* ── NAV ─────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 h-12 flex items-center border-b border-[#222]"
-        style={{background:"rgba(20,20,20,.97)", backdropFilter:"blur(6px)"}}>
-        <div className="w-full max-w-[1200px] mx-auto px-6 flex items-center justify-between">
-
-          <div className="flex items-center gap-3">
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <rect x="0" y="0" width="7" height="7" stroke="#8b5cf6" strokeWidth="1" fill="none"/>
-              <rect x="11" y="11" width="7" height="7" stroke="#38bdf8" strokeWidth="1" fill="none"/>
-              <line x1="7" y1="3.5" x2="14.5" y2="3.5" stroke="#8b5cf6" strokeWidth="1"/>
-              <line x1="14.5" y1="3.5" x2="14.5" y2="11" stroke="#8b5cf6" strokeWidth="1"/>
-              <line x1="3.5" y1="7" x2="3.5" y2="14.5" stroke="#38bdf8" strokeWidth="1"/>
-              <line x1="3.5" y1="14.5" x2="11" y2="14.5" stroke="#38bdf8" strokeWidth="1"/>
+      {/* ── NAV ── */}
+      <nav style={{
+        position:"fixed",top:0,left:0,right:0,zIndex:50,
+        height:56,display:"flex",alignItems:"center",
+        background:"rgba(20,18,26,.97)",backdropFilter:"blur(12px)",
+        borderBottom:`1px solid ${C.border}`,
+      }}>
+        <div style={{...WRAP,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <svg width="20" height="20" viewBox="0 0 18 18" fill="none">
+              <rect x="0" y="0" width="7" height="7" stroke={C.violet} strokeWidth="1.2" fill="none"/>
+              <rect x="11" y="11" width="7" height="7" stroke={C.blue} strokeWidth="1.2" fill="none"/>
+              <line x1="7" y1="3.5" x2="14.5" y2="3.5" stroke={C.violet} strokeWidth="1"/>
+              <line x1="14.5" y1="3.5" x2="14.5" y2="11" stroke={C.violet} strokeWidth="1"/>
+              <line x1="3.5" y1="7" x2="3.5" y2="14.5" stroke={C.blue} strokeWidth="1"/>
+              <line x1="3.5" y1="14.5" x2="11" y2="14.5" stroke={C.blue} strokeWidth="1"/>
             </svg>
-            <span className="text-[#8b5cf6] font-extrabold text-[12px] tracking-[.18em]">REVOIRT</span>
+            <span style={{color:C.violet,fontWeight:800,fontSize:13,letterSpacing:".18em",fontFamily:SANS}}>REVOIRT</span>
           </div>
-
-          <div className="hidden md:flex items-center gap-8">
-            {NAV.map(l=>(
-              <a key={l} href="#" className="text-[11px] tracking-widest text-[#444] no-underline transition-colors duration-150 hover:text-[#e5e7eb]">{l}</a>
-            ))}
+          <div style={{display:"flex",alignItems:"center",gap:24}}>
+            {NAV.map(l => <a key={l} href="#" className="nav-link">{l}</a>)}
           </div>
-
-          <div className="flex gap-2">
-            <button className="text-[11px] px-4 py-2 bg-transparent border border-[#2a2a2a] text-[#666] cursor-pointer transition-all duration-150 hover:border-[#555] hover:text-[#ccc]"
-              style={{fontFamily:M}}>Sign In</button>
-            <button className="text-[11px] px-5 py-2 font-bold tracking-wider bg-[#8b5cf6] text-white border-none cursor-pointer transition-colors duration-150 hover:bg-[#7c3aed]"
-              style={{fontFamily:M}}>GET STARTED</button>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            <button className="btn-ghost">Sign In</button>
+            <button className="btn-primary" style={{padding:"9px 20px"}}>GET STARTED</button>
           </div>
         </div>
       </nav>
 
-      {/* ── HERO ────────────────────────────────────────────────── */}
-      <section className="relative min-h-screen pt-12 overflow-hidden flex items-center">
+      {/* ── HERO ── */}
+      <section style={{position:"relative",minHeight:"100vh",paddingTop:56,overflow:"hidden",display:"flex",alignItems:"center",width:"100%"}}>
 
-        {/* dot grid bg */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{opacity:.025, backgroundImage:"radial-gradient(#e5e7eb 1px,transparent 1px)", backgroundSize:"32px 32px"}}/>
+        {/* dot grid */}
+        <div style={{position:"absolute",inset:0,pointerEvents:"none",opacity:.018,
+          backgroundImage:`radial-gradient(${C.text} 1px,transparent 1px)`,backgroundSize:"32px 32px"}}/>
 
-        {/* violet center glow */}
-        <div className="rv-glow absolute pointer-events-none"
-          style={{width:600, height:240, left:"50%", top:"45%", transform:"translate(-50%,-50%)",
-            background:"radial-gradient(ellipse, rgba(139,92,246,.35) 0%, transparent 70%)", filter:"blur(40px)"}}/>
+        {/* center glow */}
+        <div className="rv-glow" style={{position:"absolute",pointerEvents:"none",
+          width:700,height:280,left:"50%",top:"45%",transform:"translate(-50%,-50%)",
+          background:"radial-gradient(ellipse,rgba(179,154,255,.28) 0%,transparent 70%)",filter:"blur(50px)"}}/>
 
-        {/* ── corner circuit lines ── */}
-        {/* TL */}
-        <div className="absolute pointer-events-none" style={{top:"14%",left:0,width:"16vw",height:1,background:"rgba(139,92,246,.2)"}}>
-          <div className="absolute" style={{right:0,top:0,width:1,height:"30vh",background:"rgba(139,92,246,.2)"}}>
-            <div className="absolute" style={{bottom:0,left:0,width:"12vw",height:1,background:"rgba(139,92,246,.2)"}}/>
-            <div className="absolute bg-[#8b5cf6] opacity-50" style={{top:-3,left:-3,width:6,height:6}}/>
+        {/* TL circuit */}
+        <div style={{position:"absolute",pointerEvents:"none",top:"14%",left:0,width:"15vw",height:1,background:"rgba(179,154,255,.18)"}}>
+          <div style={{position:"absolute",right:0,top:0,width:1,height:"28vh",background:"rgba(179,154,255,.18)"}}>
+            <div style={{position:"absolute",bottom:0,left:0,width:"11vw",height:1,background:"rgba(179,154,255,.18)"}}/>
+            <div style={{position:"absolute",top:-3,left:-3,width:6,height:6,background:C.violet,opacity:.6}}/>
           </div>
-          <div className="absolute bg-[#8b5cf6] opacity-30" style={{left:0,top:-3,width:6,height:6}}/>
+          <div style={{position:"absolute",left:0,top:-3,width:6,height:6,background:C.violet,opacity:.3}}/>
         </div>
         {/* TR */}
-        <div className="absolute pointer-events-none" style={{top:0,right:"22%",width:1,height:"10vh",background:"rgba(56,189,248,.15)"}}>
-          <div className="absolute" style={{top:0,left:0,width:"18vw",height:1,background:"rgba(56,189,248,.15)"}}>
-            <div className="absolute" style={{top:0,right:0,width:1,height:"14vh",background:"rgba(56,189,248,.15)"}}/>
+        <div style={{position:"absolute",pointerEvents:"none",top:0,right:"22%",width:1,height:"10vh",background:"rgba(56,189,248,.12)"}}>
+          <div style={{position:"absolute",top:0,left:0,width:"18vw",height:1,background:"rgba(56,189,248,.12)"}}>
+            <div style={{position:"absolute",top:0,right:0,width:1,height:"13vh",background:"rgba(56,189,248,.12)"}}/>
           </div>
         </div>
         {/* BR */}
-        <div className="absolute pointer-events-none" style={{bottom:"12%",right:0,width:"16vw",height:1,background:"rgba(56,189,248,.12)"}}>
-          <div className="absolute" style={{left:0,bottom:0,width:1,height:"22vh",background:"rgba(56,189,248,.12)"}}>
-            <div className="absolute" style={{top:0,right:0,width:"10vw",height:1,background:"rgba(56,189,248,.12)"}}/>
+        <div style={{position:"absolute",pointerEvents:"none",bottom:"12%",right:0,width:"16vw",height:1,background:"rgba(56,189,248,.1)"}}>
+          <div style={{position:"absolute",left:0,bottom:0,width:1,height:"22vh",background:"rgba(56,189,248,.1)"}}>
+            <div style={{position:"absolute",top:0,right:0,width:"10vw",height:1,background:"rgba(56,189,248,.1)"}}/>
           </div>
         </div>
         {/* BL */}
-        <div className="absolute pointer-events-none" style={{bottom:0,left:"20%",width:1,height:"10vh",background:"rgba(34,197,94,.1)"}}>
-          <div className="absolute" style={{bottom:0,left:0,width:"18vw",height:1,background:"rgba(34,197,94,.1)"}}>
-            <div className="absolute" style={{bottom:0,left:0,width:1,height:"12vh",background:"rgba(34,197,94,.1)"}}/>
+        <div style={{position:"absolute",pointerEvents:"none",bottom:0,left:"20%",width:1,height:"10vh",background:"rgba(34,197,94,.08)"}}>
+          <div style={{position:"absolute",bottom:0,left:0,width:"18vw",height:1,background:"rgba(34,197,94,.08)"}}>
+            <div style={{position:"absolute",bottom:0,left:0,width:1,height:"12vh",background:"rgba(34,197,94,.08)"}}/>
           </div>
-          <div className="absolute bg-[#22c55e] opacity-35" style={{bottom:-3,left:-3,width:6,height:6}}/>
+          <div style={{position:"absolute",bottom:-3,left:-3,width:6,height:6,background:C.green,opacity:.3}}/>
         </div>
 
-        {/* ── split content ── */}
-        <div className="relative z-10 w-full max-w-[1200px] mx-auto px-6 grid grid-cols-2 gap-0 items-center"
-          style={{minHeight:"calc(100vh - 48px)"}}>
+        {/* content */}
+        <div style={{...WRAP,position:"relative",zIndex:10,display:"grid",gridTemplateColumns:"1fr 1fr",gap:0,alignItems:"center",minHeight:"calc(100vh - 56px)"}}>
 
           {/* LEFT */}
-          <div className="rv-up py-16 pr-12 flex flex-col">
+          <div className="rv-up" style={{padding:"80px 64px 80px 0",display:"flex",flexDirection:"column"}}>
 
-            <div className="rv-dot inline-flex items-center gap-2 mb-10 text-[10px] tracking-[.25em] text-[#8b5cf6] border border-[#252525] self-start px-3 py-1.5">
-              <span className="rv-dot inline-block w-1.5 h-1.5 bg-[#22c55e]"/>
+            <div className="rv-dot" style={{display:"inline-flex",alignItems:"center",gap:8,alignSelf:"flex-start",
+              marginBottom:40,padding:"8px 16px",border:`1px solid ${C.border}`,
+              fontSize:10,letterSpacing:".25em",color:C.primary,fontFamily:MONO}}>
+              <span className="rv-dot" style={{display:"inline-block",width:6,height:6,background:C.green,borderRadius:"50%"}}/>
               PUBLIC BETA · NOW LIVE
             </div>
 
-            <h1 className="font-extrabold text-[#8b5cf6] leading-none inline-block border border-[rgba(139,92,246,.22)] px-5 py-1 mb-8 self-start"
-              style={{fontSize:"clamp(3.5rem,9vw,7rem)", letterSpacing:"-0.02em", textShadow:"0 0 120px rgba(139,92,246,.18)"}}>
-              REVOIRT
-            </h1>
+            <h1 style={{
+              alignSelf:"flex-start",marginBottom:32,padding:"8px 20px",lineHeight:1,
+              fontSize:"clamp(3.5rem,8vw,6.5rem)",fontWeight:800,color:C.violet,
+              letterSpacing:"-0.02em",border:`1px solid rgba(179,154,255,.2)`,
+              textShadow:"0 0 120px rgba(179,154,255,.16)",fontFamily:SANS,
+            }}>REVOIRT</h1>
 
-            <p className="mb-4 tracking-[.04em] text-[#4a4a4a]"
-              style={{fontSize:"clamp(14px,1.8vw,18px)", minHeight:"1.6em"}}>
-              {typed}<span className="rv-blink text-[#38bdf8]">▌</span>
+            <p style={{marginBottom:16,fontSize:"clamp(14px,1.6vw,17px)",color:C.textSec,
+              minHeight:"1.6em",letterSpacing:".04em",fontFamily:MONO}}>
+              {typed}<span className="rv-blink" style={{color:C.blue}}>▌</span>
             </p>
 
-            <p className="text-[12px] text-[#343434] leading-[1.85] mb-11" style={{maxWidth:440}}>
+            <p style={{fontSize:13,color:C.textTer,lineHeight:1.85,marginBottom:44,maxWidth:420,fontFamily:SANS}}>
               Browser-native collaborative IDE — Monaco editor, integrated terminal,
               and a full file explorer powered entirely by IndexedDB.
             </p>
 
-            <div className="flex flex-wrap gap-3 mb-14">
-              <button className="text-[11px] font-bold tracking-[.12em] px-7 py-3 bg-[#8b5cf6] text-white border-none cursor-pointer transition-colors duration-150 hover:bg-[#7c3aed]"
-                style={{fontFamily:M}}>START FOR FREE →</button>
-              <button className="text-[11px] tracking-[.12em] px-7 py-3 bg-transparent border border-[#2a2a2a] text-[#555] cursor-pointer transition-all duration-150 hover:border-[#8b5cf6] hover:text-[#ccc]"
-                style={{fontFamily:M}}>VIEW DEMO</button>
+            <div style={{display:"flex",flexWrap:"wrap",gap:12,marginBottom:56}}>
+              <button className="btn-primary">START FOR FREE →</button>
+              <button className="btn-secondary">VIEW DEMO</button>
             </div>
 
-            {/* stats */}
-            <div className="grid grid-cols-3 border border-[#222]" style={{maxWidth:300}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",maxWidth:300,border:`1px solid ${C.border}`}}>
               {[["12k+","DEVS"],["<50ms","SYNC"],["99.9%","UPTIME"]].map(([v,l],i)=>(
-                <div key={l} className="py-4 text-center" style={{borderRight:i<2?"1px solid #222":"none"}}>
-                  <div className="text-[15px] font-bold text-[#e5e7eb]">{v}</div>
-                  <div className="text-[9px] text-[#363636] tracking-[.2em] mt-1">{l}</div>
+                <div key={l} style={{padding:"16px 0",textAlign:"center",borderRight:i<2?`1px solid ${C.border}`:"none"}}>
+                  <div style={{fontSize:15,fontWeight:700,color:C.text}}>{v}</div>
+                  <div style={{fontSize:9,color:C.textSec,letterSpacing:".2em",marginTop:4,fontFamily:MONO}}>{l}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* RIGHT — boot log */}
-          <div className="py-16 pl-10 flex flex-col gap-4">
+          {/* RIGHT */}
+          <div style={{padding:"80px 0 80px 40px",display:"flex",flexDirection:"column",gap:16}}>
 
-            <div className="border border-[#252525] overflow-hidden">
-              {/* chrome */}
-              <div className="flex items-center justify-between px-4 py-2.5 bg-[#1c1c1c] border-b border-[#252525]">
-                <div className="flex gap-1.5">
-                  <div className="w-2.5 h-2.5 bg-[#ff5f57]"/>
-                  <div className="w-2.5 h-2.5 bg-[#febc2e]"/>
-                  <div className="w-2.5 h-2.5 bg-[#28c840]"/>
+            {/* terminal */}
+            <div className="card-hover" style={{border:`1px solid ${C.border}`,overflow:"hidden"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+                padding:"10px 16px",background:C.bgSurface,borderBottom:`1px solid ${C.border}`}}>
+                <div style={{display:"flex",gap:6}}>
+                  <div style={{width:10,height:10,borderRadius:"50%",background:"#ff5f57"}}/>
+                  <div style={{width:10,height:10,borderRadius:"50%",background:"#febc2e"}}/>
+                  <div style={{width:10,height:10,borderRadius:"50%",background:"#28c840"}}/>
                 </div>
-                <span className="text-[9px] text-[#2e2e2e] tracking-[.2em]">REVOIRT TERMINAL · boot sequence</span>
-                <span className="rv-dot text-[9px] text-[#22c55e]">● LIVE</span>
+                <span style={{fontSize:9,color:C.textTer,letterSpacing:".2em",fontFamily:MONO}}>REVOIRT TERMINAL · boot sequence</span>
+                <span className="rv-dot" style={{fontSize:9,color:C.green,fontFamily:MONO}}>● LIVE</span>
               </div>
 
-              {/* log body */}
-              <div className="bg-[#0f0f0f] px-5 py-5 flex flex-col gap-0.5" style={{minHeight:320}}>
+              <div style={{background:C.bgCode,padding:"20px",display:"flex",flexDirection:"column",gap:2,minHeight:320}}>
                 {LOG_LINES.map((line,i)=>(
                   logVisible.includes(i) && (
-                    <div key={i} className="rv-slide flex items-baseline gap-3 text-[11px]">
-                      <span className="text-[#252525] shrink-0 text-right" style={{minWidth:28}}>{line.ms}</span>
-                      <span className="shrink-0 font-bold" style={{color:line.col, minWidth:40}}>[{line.tag}]</span>
-                      <span style={{color:i===LOG_LINES.length-1?"#d4d4d4":"#3a3a3a"}}>
+                    <div key={i} className="rv-slide" style={{display:"flex",alignItems:"baseline",gap:12,fontSize:11,fontFamily:MONO}}>
+                      <span style={{color:C.textTer,minWidth:28,textAlign:"right",flexShrink:0}}>{line.ms}</span>
+                      <span style={{color:line.col,minWidth:40,flexShrink:0,fontWeight:600}}>[{line.tag}]</span>
+                      <span style={{color:i===LOG_LINES.length-1?C.text:"#3a3a3a"}}>
                         {line.msg}
-                        {i===LOG_LINES.length-1 && <span className="rv-blink text-[#22c55e]"> ▌</span>}
+                        {i===LOG_LINES.length-1&&<span className="rv-blink" style={{color:C.green}}> ▌</span>}
                       </span>
                     </div>
                   )
                 ))}
               </div>
 
-              {/* prompt bar */}
-              <div className="flex items-center gap-3 px-5 py-2.5 bg-[#0f0f0f] border-t border-[#1a1a1a]">
-                <span className="text-[11px] font-extrabold text-[#8b5cf6]">Revoirt</span>
-                <span className="text-[11px] text-[#22c55e]">❯</span>
-                <span className="text-[11px] text-[#2e2e2e]">npm run dev</span>
-                <span className="rv-blink text-[11px] text-[#38bdf8] ml-auto">▌</span>
+              <div style={{display:"flex",alignItems:"center",gap:12,padding:"10px 20px",
+                background:C.bgCode,borderTop:`1px solid ${C.borderMid}`}}>
+                <span style={{fontSize:11,fontWeight:700,color:C.violet,fontFamily:MONO}}>Revoirt</span>
+                <span style={{fontSize:11,color:C.green,fontFamily:MONO}}>❯</span>
+                <span style={{fontSize:11,color:C.textTer,fontFamily:MONO}}>npm run dev</span>
+                <span className="rv-blink" style={{fontSize:11,color:C.blue,marginLeft:"auto",fontFamily:MONO}}>▌</span>
               </div>
             </div>
 
             {/* collab badge */}
-            <div className="flex items-center gap-3 px-4 py-3 border border-[#1e1e1e] bg-[#141414]">
-              <div className="flex" style={{marginLeft:4}}>
+            <div style={{display:"flex",alignItems:"center",gap:12,padding:"12px 16px",
+              border:`1px solid ${C.border}`,background:C.bgSurface}}>
+              <div style={{display:"flex",marginLeft:4}}>
                 {CURSORS.map(u=>(
-                  <div key={u.i} className="flex items-center justify-center text-[8px] font-extrabold text-white border border-[#181818]"
-                    style={{width:22,height:22,background:u.color,marginLeft:-4}}>{u.i}</div>
+                  <div key={u.i} style={{width:24,height:24,background:u.color,fontSize:8,fontWeight:800,
+                    color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",
+                    marginLeft:-4,border:`2px solid ${C.bg}`,fontFamily:SANS}}>
+                    {u.i}
+                  </div>
                 ))}
               </div>
-              <span className="text-[10px] text-[#363636]">3 collaborators online · room/alpha-squad</span>
-              <span className="rv-dot ml-auto text-[9px] text-[#22c55e]">● synced</span>
+              <span style={{fontSize:10,color:C.textSec,fontFamily:MONO}}>3 collaborators online · room/alpha-squad</span>
+              <span className="rv-dot" style={{fontSize:9,color:C.green,marginLeft:"auto",fontFamily:MONO}}>● synced</span>
             </div>
           </div>
         </div>
 
         {/* scroll hint */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none">
-          <div className="text-[9px] text-[#252525] tracking-[.3em]">SCROLL</div>
-          <div className="w-px h-7" style={{background:"linear-gradient(to bottom,#252525,transparent)"}}/>
+        <div style={{position:"absolute",bottom:32,left:"50%",transform:"translateX(-50%)",
+          display:"flex",flexDirection:"column",alignItems:"center",gap:6,pointerEvents:"none"}}>
+          <div style={{fontSize:9,color:C.textTer,letterSpacing:".3em",fontFamily:MONO}}>SCROLL</div>
+          <div style={{width:1,height:28,background:`linear-gradient(to bottom,${C.textTer},transparent)`}}/>
         </div>
       </section>
 
-      {/* ── IDE PREVIEW ─────────────────────────────────────────── */}
-      <section className="border-t border-[#222] py-24 px-6">
-        <div className="max-w-[1200px] mx-auto">
-
-          <div className="flex items-end justify-between flex-wrap gap-4 mb-12">
+      {/* ── IDE PREVIEW ── */}
+      <section style={{borderTop:`1px solid ${C.border}`,padding:"96px 0",width:"100%"}}>
+        <div style={WRAP}>
+          <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",flexWrap:"wrap",gap:16,marginBottom:64}}>
             <div>
-              <p className="text-[10px] text-[#8b5cf6] tracking-[.3em] mb-2">// THE EDITOR</p>
-              <h2 className="font-bold text-[#e5e7eb]" style={{fontSize:"clamp(22px,3.5vw,36px)"}}>Everything in one window.</h2>
+              <p style={{fontSize:10,color:C.violet,letterSpacing:".3em",marginBottom:8,fontFamily:MONO}}>// THE EDITOR</p>
+              <h2 style={{fontSize:"clamp(22px,3.5vw,36px)",fontWeight:700,color:C.text,fontFamily:SANS}}>Everything in one window.</h2>
             </div>
-            <div className="text-[11px] text-[#2e2e2e] border-l-2 border-[#252525] pl-4 leading-relaxed">
-              Monaco · xterm.js<br/><span className="text-[#22c55e]">IndexedDB · CRDT</span>
+            <div style={{fontSize:11,color:C.textTer,borderLeft:`2px solid ${C.border}`,paddingLeft:16,lineHeight:1.8,fontFamily:MONO}}>
+              Monaco · xterm.js<br/><span style={{color:C.green}}>IndexedDB · CRDT</span>
             </div>
           </div>
 
-          {/* IDE shell */}
-          <div className="border border-[#252525] overflow-hidden">
-
+          <div className="card-hover" style={{border:`1px solid ${C.border}`,overflow:"hidden"}}>
             {/* chrome */}
-            <div className="flex items-center gap-3 px-4 py-2.5 bg-[#1c1c1c] border-b border-[#252525]">
-              <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 bg-[#ff5f57]"/>
-                <div className="w-2.5 h-2.5 bg-[#febc2e]"/>
-                <div className="w-2.5 h-2.5 bg-[#28c840]"/>
+            <div style={{display:"flex",alignItems:"center",gap:12,padding:"10px 16px",
+              background:C.bgSurface,borderBottom:`1px solid ${C.border}`}}>
+              <div style={{display:"flex",gap:6}}>
+                <div style={{width:10,height:10,borderRadius:"50%",background:"#ff5f57"}}/>
+                <div style={{width:10,height:10,borderRadius:"50%",background:"#febc2e"}}/>
+                <div style={{width:10,height:10,borderRadius:"50%",background:"#28c840"}}/>
               </div>
-              <div className="flex-1 text-center text-[10px] text-[#363636] tracking-[.15em]">REVOIRT · room/alpha-squad</div>
-              <div className="flex" style={{gap:2}}>
+              <div style={{flex:1,textAlign:"center",fontSize:10,color:C.textTer,letterSpacing:".15em",fontFamily:MONO}}>
+                REVOIRT · room/alpha-squad
+              </div>
+              <div style={{display:"flex",gap:2}}>
                 {CURSORS.map(u=>(
-                  <div key={u.i} className="flex items-center justify-center text-[8px] font-extrabold text-white border border-[#181818]"
-                    style={{width:20,height:20,background:u.color,marginLeft:-3}}>{u.i}</div>
+                  <div key={u.i} style={{width:20,height:20,background:u.color,fontSize:8,fontWeight:700,color:"#fff",
+                    display:"flex",alignItems:"center",justifyContent:"center",marginLeft:-3,
+                    border:`2px solid ${C.bg}`,fontFamily:SANS}}>
+                    {u.i}
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* editor body */}
-            <div className="flex" style={{height:380}}>
-
+            {/* body */}
+            <div style={{display:"flex",height:380}}>
               {/* sidebar */}
-              <div className="w-40 bg-[#161616] border-r border-[#222] py-3 shrink-0 overflow-y-auto">
-                <div className="text-[9px] text-[#2a2a2a] tracking-[.25em] px-3 pb-2 mb-1 border-b border-[#1e1e1e]">EXPLORER</div>
+              <div style={{width:160,background:C.bgCode,borderRight:`1px solid ${C.border}`,flexShrink:0,overflowY:"auto"}}>
+                <div style={{fontSize:9,color:C.textTer,letterSpacing:".25em",padding:"10px 12px",
+                  borderBottom:`1px solid ${C.borderMid}`,fontFamily:MONO}}>EXPLORER</div>
                 {FILES.map(f=>(
-                  <div key={f.n} className="flex items-center gap-1.5 py-[3px] cursor-pointer transition-colors duration-100"
-                    style={{
-                      paddingLeft:`${f.d*10+12}px`, paddingRight:8, fontSize:11,
-                      color:f.active?"#8b5cf6":"#333",
-                      background:f.active?"rgba(139,92,246,.08)":"transparent",
-                      borderLeft:f.active?"2px solid #8b5cf6":"2px solid transparent",
-                    }}
-                    onMouseEnter={e=>{if(!f.active)(e.currentTarget.style.color="#666")}}
-                    onMouseLeave={e=>{if(!f.active)(e.currentTarget.style.color="#333")}}>
+                  <div key={f.n} className="file-row" style={{
+                    display:"flex",alignItems:"center",gap:6,cursor:"pointer",
+                    paddingLeft:`${f.d*10+12}px`,paddingRight:8,paddingTop:4,paddingBottom:4,fontSize:11,
+                    color:f.active?C.violet:C.textTer,
+                    background:f.active?`rgba(179,154,255,.08)`:"transparent",
+                    borderLeft:f.active?`2px solid ${C.violet}`:"2px solid transparent",
+                    fontFamily:MONO,transition:"color .12s,background .12s",
+                  }}>
                     <span style={{opacity:.35,fontSize:9}}>{f.icon}</span>
-                    <span className="truncate">{f.n}</span>
+                    <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.n}</span>
                   </div>
                 ))}
               </div>
 
               {/* editor pane */}
-              <div className="flex-1 flex flex-col min-w-0">
-                {/* tabs */}
-                <div className="flex text-[11px] shrink-0 bg-[#161616] border-b border-[#222]">
+              <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0}}>
+                <div style={{display:"flex",flexShrink:0,background:C.bgCode,borderBottom:`1px solid ${C.border}`,fontSize:11}}>
                   {["editor.ts","session.ts"].map((t,i)=>(
-                    <div key={t} className="px-4 py-2 border-r border-[#222] shrink-0"
-                      style={{
-                        color:i===0?"#e5e7eb":"#333",
-                        background:i===0?"#181818":"transparent",
-                        borderTop:i===0?"1px solid #8b5cf6":"none",
-                      }}>{t}</div>
+                    <div key={t} style={{padding:"8px 16px",borderRight:`1px solid ${C.border}`,flexShrink:0,fontFamily:MONO,
+                      color:i===0?C.text:C.textTer,background:i===0?C.bg:"transparent",
+                      borderTop:i===0?`1px solid ${C.violet}`:"none"}}>{t}</div>
                   ))}
                 </div>
-                {/* code */}
-                <div className="flex-1 bg-[#181818] px-4 py-3 overflow-y-auto" style={{fontSize:12,lineHeight:"20px"}}>
+                <div style={{flex:1,overflowY:"auto",padding:"12px 16px",background:C.bg,fontSize:12,lineHeight:"20px",fontFamily:MONO}}>
                   {CODE.map((tokens,i)=>(
-                    <div key={i} className="flex relative">
-                      <span className="shrink-0 text-right text-[#252525] mr-4 select-none text-[11px]" style={{width:28}}>{i+1}</span>
-                      <span className="flex-1 relative">
-                        {CURSORS.find(c=>c.line===i) && (
-                          <span className="absolute z-10 text-[8px] font-extrabold text-white px-1.5 leading-4 whitespace-nowrap"
-                            style={{top:-1,left:0,background:CURSORS.find(c=>c.line===i)!.color}}>
+                    <div key={i} style={{display:"flex",position:"relative"}}>
+                      <span style={{width:28,flexShrink:0,textAlign:"right",color:C.textTer,marginRight:16,userSelect:"none",fontSize:11}}>{i+1}</span>
+                      <span style={{flex:1,position:"relative"}}>
+                        {CURSORS.find(c=>c.line===i)&&(
+                          <span style={{position:"absolute",zIndex:10,fontSize:8,fontWeight:700,color:C.bg,
+                            padding:"0 4px",lineHeight:"16px",whiteSpace:"nowrap",top:-1,left:0,
+                            background:CURSORS.find(c=>c.line===i)!.color}}>
                             {CURSORS.find(c=>c.line===i)!.name}
                           </span>
                         )}
-                        {CURSORS.some(c=>c.line===i) && (
-                          <span className="absolute inset-0" style={{opacity:.06, background:CURSORS.find(c=>c.line===i)!.color}}/>
+                        {CURSORS.some(c=>c.line===i)&&(
+                          <span style={{position:"absolute",inset:0,opacity:.06,background:CURSORS.find(c=>c.line===i)!.color}}/>
                         )}
                         {tokens.map((tok,j)=><span key={j} style={{color:tok.c}}>{tok.t}</span>)}
-                        {CURSORS[activeCur].line===i && (
-                          <span className="inline-block align-middle ml-0.5"
-                            style={{width:2,height:14,background:CURSORS[activeCur].color,opacity:curOn?1:0}}/>
+                        {CURSORS[activeCur].line===i&&(
+                          <span style={{display:"inline-block",verticalAlign:"middle",marginLeft:2,
+                            width:2,height:14,background:CURSORS[activeCur].color,opacity:curOn?1:0}}/>
                         )}
                       </span>
                     </div>
@@ -381,177 +423,172 @@ export default function Home() {
             </div>
 
             {/* terminal strip */}
-            <div className="border-t border-[#222]">
-              <div className="flex text-[10px] border-b border-[#1a1a1a]">
+            <div style={{borderTop:`1px solid ${C.border}`}}>
+              <div style={{display:"flex",fontSize:10,borderBottom:`1px solid ${C.borderMid}`}}>
                 {["TERMINAL","PROBLEMS","OUTPUT"].map((t,i)=>(
-                  <div key={t} className="px-4 py-1.5 tracking-[.15em] shrink-0"
-                    style={{color:i===0?"#22c55e":"#282828", borderBottom:i===0?"1px solid #22c55e":"none"}}>{t}</div>
+                  <div key={t} style={{padding:"6px 16px",letterSpacing:".15em",flexShrink:0,fontFamily:MONO,
+                    color:i===0?C.green:C.textTer,borderBottom:i===0?`1px solid ${C.green}`:"none"}}>{t}</div>
                 ))}
               </div>
-              <div className="bg-[#181818] px-4 py-2.5 h-[68px] text-[11px] leading-[1.6]">
-                <div><span className="text-[#8b5cf6] font-extrabold">Revoirt </span><span className="text-[#22c55e]">❯ </span><span className="text-[#424242]">npm run dev</span></div>
-                <div className="text-[#252525] text-[10px] mt-0.5">{"  "}→ Ready on <span className="text-[#38bdf8]">http://localhost:3000</span></div>
-                <div className="text-[#252525] text-[10px]">{"  "}✓ Compiled in 847ms · 3 peers connected</div>
+              <div style={{background:C.bg,padding:"10px 16px",height:68,fontSize:11,lineHeight:1.6,fontFamily:MONO}}>
+                <div><span style={{color:C.violet,fontWeight:700}}>Revoirt </span><span style={{color:C.green}}>❯ </span><span style={{color:C.textTer}}>npm run dev</span></div>
+                <div style={{color:C.textTer,fontSize:10,marginTop:2}}>&nbsp;&nbsp;→ Ready on <span style={{color:C.blue}}>http://localhost:3000</span></div>
+                <div style={{color:C.textTer,fontSize:10}}>&nbsp;&nbsp;✓ Compiled in 847ms · 3 peers connected</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── FEATURES BENTO ──────────────────────────────────────── */}
-      <section className="border-t border-[#222] py-24 px-6">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="mb-12">
-            <p className="text-[10px] text-[#8b5cf6] tracking-[.3em] mb-2">// FEATURES</p>
-            <h2 className="font-bold text-[#e5e7eb]" style={{fontSize:"clamp(22px,3.5vw,36px)"}}>Built for teams who ship.</h2>
+      {/* ── FEATURES BENTO ── */}
+      <section style={{borderTop:`1px solid ${C.border}`,padding:"96px 0",width:"100%"}}>
+        <div style={WRAP}>
+          <div style={{marginBottom:64}}>
+            <p style={{fontSize:10,color:C.violet,letterSpacing:".3em",marginBottom:8,fontFamily:MONO}}>// FEATURES</p>
+            <h2 style={{fontSize:"clamp(22px,3.5vw,36px)",fontWeight:700,color:C.text,fontFamily:SANS}}>Built for teams who ship.</h2>
           </div>
-
-          {/* gap-px bento: parent bg = gap color */}
-          <div className="grid grid-cols-3 gap-px bg-[#222]">
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:1,background:C.border}}>
             {FEATURES.map(f=>(
-              <div key={f.id}
-                className="relative overflow-hidden bg-[#181818] p-9 cursor-default transition-colors duration-150 hover:bg-[#1c1c1c]"
-                style={{gridColumn:f.span===2?"span 2":"span 1"}}>
-                {/* accent top line */}
-                <div className="absolute top-0 left-0 right-0 h-px" style={{background:f.accent, opacity:.65}}/>
-                {/* watermark */}
-                <div className="absolute bottom-[-12px] right-[-4px] font-extrabold leading-none select-none pointer-events-none text-[#1d1d1d]"
-                  style={{fontSize:"5rem"}}>{f.id}</div>
-                <p className="text-[11px] font-semibold tracking-[.18em] mb-4" style={{color:f.accent}}>[{f.tag}]</p>
-                <h3 className="text-[15px] font-bold text-[#e5e7eb] mb-2.5 relative">{f.title}</h3>
-                <p className="text-[12px] text-[#424242] leading-[1.8] relative">{f.body}</p>
+              <div key={f.id} className="feature-card" style={{
+                gridColumn:f.span===2?"span 2":"span 1",
+                background:C.bg,padding:"36px",position:"relative",overflow:"hidden",cursor:"default",
+                transition:"background .15s",
+              }}>
+                <div style={{position:"absolute",top:0,left:0,right:0,height:1,background:f.accent,opacity:.7}}/>
+                <div style={{position:"absolute",bottom:-12,right:-4,fontWeight:800,fontSize:"5rem",
+                  color:`${C.border}55`,lineHeight:1,userSelect:"none",pointerEvents:"none"}}>{f.id}</div>
+                <p style={{fontSize:10,fontWeight:600,letterSpacing:".18em",marginBottom:16,color:f.accent,fontFamily:MONO}}>[{f.tag}]</p>
+                <h3 style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:10,position:"relative",fontFamily:SANS}}>{f.title}</h3>
+                <p style={{fontSize:12,color:C.textSec,lineHeight:1.8,position:"relative",fontFamily:SANS}}>{f.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── COLLAB SECTION ──────────────────────────────────────── */}
-      <section className="border-t border-[#222] py-24 px-6">
-        <div className="max-w-[1200px] mx-auto grid grid-cols-2 gap-20 items-start">
-
+      {/* ── COLLAB SECTION ── */}
+      <section style={{borderTop:`1px solid ${C.border}`,padding:"96px 0",width:"100%"}}>
+        <div style={{...WRAP,display:"grid",gridTemplateColumns:"1fr 1fr",gap:80,alignItems:"start"}}>
           <div>
-            <p className="text-[10px] text-[#38bdf8] tracking-[.3em] mb-4">// REAL-TIME PRESENCE</p>
-            <h2 className="font-bold text-[#e5e7eb] mb-5" style={{fontSize:"clamp(20px,3vw,32px)"}}>
+            <p style={{fontSize:10,color:C.blue,letterSpacing:".3em",marginBottom:16,fontFamily:MONO}}>// REAL-TIME PRESENCE</p>
+            <h2 style={{fontSize:"clamp(20px,3vw,32px)",fontWeight:700,color:C.text,marginBottom:20,lineHeight:1.25,fontFamily:SANS}}>
               See everyone's cursor.<br/>Always.
             </h2>
-            <p className="text-[12px] text-[#424242] leading-[1.85] mb-8">
+            <p style={{fontSize:13,color:C.textSec,lineHeight:1.85,marginBottom:32,fontFamily:SANS}}>
               Every keystroke, selection, and terminal command is synchronized across all collaborators.
               User groups let you control who sees what and who can edit.
             </p>
-            <div className="flex flex-col gap-3">
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
               {[
-                {label:"Conflict-free CRDT (Yjs) under the hood", color:"#8b5cf6"},
-                {label:"Named cursors · color-coded selections",   color:"#38bdf8"},
-                {label:"Shared xterm.js terminal sessions",        color:"#22c55e"},
-                {label:"Role-based access control (RBAC)",         color:"#f59e0b"},
-                {label:"Offline-first · auto-reconcile on reconnect", color:"#ef4444"},
+                {label:"Conflict-free CRDT (Yjs) under the hood", color:C.violet},
+                {label:"Named cursors · color-coded selections",   color:C.blue},
+                {label:"Shared xterm.js terminal sessions",        color:C.green},
+                {label:"Role-based access control (RBAC)",         color:C.yellow},
+                {label:"Offline-first · auto-reconcile on reconnect", color:C.red},
               ].map(({label,color})=>(
-                <div key={label} className="flex items-center gap-3 text-[12px] text-[#424242]">
-                  <div className="shrink-0" style={{width:4,height:4,background:color}}/>
+                <div key={label} style={{display:"flex",alignItems:"center",gap:12,fontSize:12,color:C.textSec,fontFamily:SANS}}>
+                  <div style={{width:4,height:4,background:color,flexShrink:0}}/>
                   {label}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* session panel */}
-          <div className="border border-[#222] overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2 bg-[#161616] border-b border-[#222]">
-              <span className="text-[9px] text-[#282828] tracking-[.2em]">ACTIVE SESSION · room/alpha-squad</span>
-              <span className="rv-dot text-[9px] text-[#22c55e]">● live</span>
+          <div className="card-hover" style={{border:`1px solid ${C.border}`,overflow:"hidden"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+              padding:"10px 16px",background:C.bgSurface,borderBottom:`1px solid ${C.border}`}}>
+              <span style={{fontSize:9,color:C.textTer,letterSpacing:".2em",fontFamily:MONO}}>ACTIVE SESSION · room/alpha-squad</span>
+              <span className="rv-dot" style={{fontSize:9,color:C.green,fontFamily:MONO}}>● live</span>
             </div>
             {CURSORS.map(u=>(
-              <div key={u.i} className="flex items-center gap-4 px-4 py-3.5 border-b border-[#1a1a1a] transition-colors duration-100 hover:bg-[#1c1c1c]">
-                <div className="flex items-center justify-center text-[11px] font-extrabold text-white shrink-0"
-                  style={{width:32,height:32,background:u.color}}>{u.i}</div>
-                <div className="flex-1">
-                  <div className="text-[13px] text-[#b0b0b0] mb-0.5">{u.name}</div>
-                  <div className="text-[10px] text-[#2e2e2e]">Line {u.line} · editor.ts</div>
+              <div key={u.i} className="collab-row" style={{display:"flex",alignItems:"center",gap:16,
+                padding:"14px 16px",borderBottom:`1px solid ${C.borderMid}`,transition:"background .12s"}}>
+                <div style={{width:32,height:32,background:u.color,fontSize:11,fontWeight:800,flexShrink:0,
+                  display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontFamily:SANS}}>{u.i}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:13,color:C.text,marginBottom:2,fontFamily:SANS}}>{u.name}</div>
+                  <div style={{fontSize:10,color:C.textTer,fontFamily:MONO}}>Line {u.line} · editor.ts</div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="rv-dot" style={{width:6,height:6,background:"#22c55e"}}/>
-                  <span className="text-[10px] text-[#2e2e2e]">editing</span>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <div className="rv-dot" style={{width:6,height:6,background:C.green}}/>
+                  <span style={{fontSize:10,color:C.textTer,fontFamily:MONO}}>editing</span>
                 </div>
               </div>
             ))}
-            <div className="flex items-center gap-2 px-4 py-2.5 bg-[#141414] text-[10px] text-[#252525]">
-              <span className="text-[#22c55e]">●</span>
-              3 users · last sync 8ms · CRDT v2
+            <div style={{display:"flex",alignItems:"center",gap:8,padding:"10px 16px",
+              background:C.bgSurface,fontSize:10,color:C.textTer,fontFamily:MONO}}>
+              <span style={{color:C.green}}>●</span>3 users · last sync 8ms · CRDT v2
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── FILE EXPLORER SECTION ───────────────────────────────── */}
-      <section className="border-t border-[#222] py-24 px-6">
-        <div className="max-w-[1200px] mx-auto grid grid-cols-2 gap-20 items-start">
+      {/* ── FILE EXPLORER ── */}
+      <section style={{borderTop:`1px solid ${C.border}`,padding:"96px 0",width:"100%"}}>
+        <div style={{...WRAP,display:"grid",gridTemplateColumns:"1fr 1fr",gap:80,alignItems:"start"}}>
 
-          {/* file explorer mockup */}
-          <div className="border border-[#222] overflow-hidden">
-            <div className="flex justify-between items-center px-4 py-2 bg-[#161616] border-b border-[#222]">
-              <span className="text-[9px] text-[#282828] tracking-[.2em]">FILE EXPLORER · idb://revoirt</span>
-              <span className="text-[9px] text-[#22c55e]">● synced</span>
+          <div className="card-hover" style={{border:`1px solid ${C.border}`,overflow:"hidden"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",
+              padding:"10px 16px",background:C.bgSurface,borderBottom:`1px solid ${C.border}`}}>
+              <span style={{fontSize:9,color:C.textTer,letterSpacing:".2em",fontFamily:MONO}}>FILE EXPLORER · idb://revoirt</span>
+              <span style={{fontSize:9,color:C.green,fontFamily:MONO}}>● synced</span>
             </div>
-            <div className="px-4 py-1.5 text-[10px] text-[#2e2e2e] border-b border-[#1a1a1a]">
-              root / src / <span className="text-[#8b5cf6]">editor.ts</span>
+            <div style={{padding:"6px 16px",fontSize:10,color:C.textTer,borderBottom:`1px solid ${C.borderMid}`,fontFamily:MONO}}>
+              root / src / <span style={{color:C.violet}}>editor.ts</span>
             </div>
-            {/* col header */}
-            <div className="grid px-4 py-1.5 text-[9px] text-[#242424] tracking-[.1em] border-b border-[#1a1a1a]"
-              style={{gridTemplateColumns:"24px 1fr 64px 72px"}}>
-              <span/><span>NAME</span>
-              <span className="text-right">SIZE</span>
-              <span className="text-right">MODIFIED</span>
+            <div style={{display:"grid",gridTemplateColumns:"24px 1fr 64px 72px",padding:"6px 16px",
+              fontSize:9,color:C.textTer,letterSpacing:".1em",borderBottom:`1px solid ${C.borderMid}`,fontFamily:MONO}}>
+              <span/><span>NAME</span><span style={{textAlign:"right"}}>SIZE</span><span style={{textAlign:"right"}}>MODIFIED</span>
             </div>
             {[
-              {icon:"▾",name:"root",      size:"—",     mod:"just now",dir:true},
-              {icon:"▾",name:"src",       size:"—",     mod:"2m ago",  dir:true},
-              {icon:"·",name:"editor.ts", size:"4.2 KB",mod:"just now",active:true},
-              {icon:"·",name:"session.ts",size:"2.1 KB",mod:"5m ago"},
-              {icon:"·",name:"idb.ts",    size:"6.8 KB",mod:"12m ago"},
+              {icon:"▾",name:"root",       size:"—",     mod:"just now",dir:true},
+              {icon:"▾",name:"src",        size:"—",     mod:"2m ago",  dir:true},
+              {icon:"·",name:"editor.ts",  size:"4.2 KB",mod:"just now",active:true},
+              {icon:"·",name:"session.ts", size:"2.1 KB",mod:"5m ago"},
+              {icon:"·",name:"idb.ts",     size:"6.8 KB",mod:"12m ago"},
               {icon:"·",name:"terminal.ts",size:"3.3 KB",mod:"1h ago"},
-              {icon:"·",name:"types.ts",  size:"1.1 KB",mod:"2h ago"},
+              {icon:"·",name:"types.ts",   size:"1.1 KB",mod:"2h ago"},
             ].map((f,i)=>(
-              <div key={i} className="grid items-center px-4 py-[7px] cursor-pointer transition-colors duration-100"
-                style={{
-                  gridTemplateColumns:"24px 1fr 64px 72px", fontSize:11,
-                  color:f.active?"#8b5cf6":"#3a3a3a",
-                  background:f.active?"rgba(139,92,246,.07)":i%2?"rgba(255,255,255,.008)":"transparent",
-                  borderLeft:f.active?"2px solid #8b5cf6":"2px solid transparent",
-                }}
-                onMouseEnter={e=>{if(!f.active)(e.currentTarget.style.color="#666")}}
-                onMouseLeave={e=>{if(!f.active)(e.currentTarget.style.color="#3a3a3a")}}>
+              <div key={i} className="file-row" style={{
+                display:"grid",gridTemplateColumns:"24px 1fr 64px 72px",
+                alignItems:"center",padding:"7px 16px",fontSize:11,cursor:"pointer",
+                color:f.active?C.violet:C.textSec,
+                background:f.active?`rgba(179,154,255,.07)`:i%2?"rgba(255,255,255,.006)":"transparent",
+                borderLeft:f.active?`2px solid ${C.violet}`:"2px solid transparent",
+                fontFamily:MONO,transition:"color .12s,background .12s",
+              }}>
                 <span style={{opacity:.3}}>{f.icon}</span>
                 <span>{f.name}</span>
-                <span className="text-right text-[#1e1e1e]">{f.size}</span>
-                <span className="text-right text-[10px] text-[#1c1c1c]">{f.mod}</span>
+                <span style={{textAlign:"right",color:C.textTer}}>{f.size}</span>
+                <span style={{textAlign:"right",fontSize:10,color:C.textTer}}>{f.mod}</span>
               </div>
             ))}
-            <div className="flex justify-between px-4 py-2 text-[10px] text-[#202020] border-t border-[#1a1a1a]">
+            <div style={{display:"flex",justifyContent:"space-between",padding:"8px 16px",
+              fontSize:10,color:C.textTer,borderTop:`1px solid ${C.borderMid}`,fontFamily:MONO}}>
               <span>7 items · 17.5 KB</span><span>stored in idb</span>
             </div>
           </div>
 
           <div>
-            <p className="text-[10px] text-[#22c55e] tracking-[.3em] mb-4">// BROWSER-NATIVE STORAGE</p>
-            <h2 className="font-bold text-[#e5e7eb] mb-5" style={{fontSize:"clamp(20px,3vw,32px)"}}>
+            <p style={{fontSize:10,color:C.green,letterSpacing:".3em",marginBottom:16,fontFamily:MONO}}>// BROWSER-NATIVE STORAGE</p>
+            <h2 style={{fontSize:"clamp(20px,3vw,32px)",fontWeight:700,color:C.text,marginBottom:20,lineHeight:1.25,fontFamily:SANS}}>
               Your files never<br/>leave the browser.
             </h2>
-            <p className="text-[12px] text-[#424242] leading-[1.85] mb-8">
+            <p style={{fontSize:13,color:C.textSec,lineHeight:1.85,marginBottom:32,fontFamily:SANS}}>
               The file explorer runs entirely on IndexedDB and sessionStorage.
               No cloud uploads. No S3 buckets. No latency.
               Files persist across sessions; collaboration sync is via CRDT patches — not file transfers.
             </p>
-            <div className="flex flex-col gap-3">
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
               {[
-                {label:"IndexedDB persistence",            color:"#22c55e"},
-                {label:"sessionStorage for ephemeral state",color:"#38bdf8"},
-                {label:"CRDT patch-based collaboration",   color:"#8b5cf6"},
-                {label:"Zero server file uploads",         color:"#f59e0b"},
-                {label:"Works offline · reconciles on reconnect",color:"#ef4444"},
+                {label:"IndexedDB persistence",                   color:C.green},
+                {label:"sessionStorage for ephemeral state",      color:C.blue},
+                {label:"CRDT patch-based collaboration",          color:C.violet},
+                {label:"Zero server file uploads",                color:C.yellow},
+                {label:"Works offline · reconciles on reconnect", color:C.red},
               ].map(({label,color})=>(
-                <div key={label} className="flex items-center gap-3 text-[12px] text-[#424242]">
-                  <div className="shrink-0" style={{width:4,height:4,background:color}}/>
+                <div key={label} style={{display:"flex",alignItems:"center",gap:12,fontSize:12,color:C.textSec,fontFamily:SANS}}>
+                  <div style={{width:4,height:4,background:color,flexShrink:0}}/>
                   {label}
                 </div>
               ))}
@@ -560,78 +597,75 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ────────────────────────────────────────── */}
-      <section className="border-t border-[#222] py-24 px-6">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-[10px] text-[#8b5cf6] tracking-[.3em] mb-2">// HOW IT WORKS</p>
-            <h2 className="font-bold text-[#e5e7eb]" style={{fontSize:"clamp(22px,4vw,38px)"}}>Up in 60 seconds.</h2>
+      {/* ── HOW IT WORKS ── */}
+      <section style={{borderTop:`1px solid ${C.border}`,padding:"96px 0",width:"100%"}}>
+        <div style={WRAP}>
+          <div style={{textAlign:"center",marginBottom:64}}>
+            <p style={{fontSize:10,color:C.violet,letterSpacing:".3em",marginBottom:8,fontFamily:MONO}}>// HOW IT WORKS</p>
+            <h2 style={{fontSize:"clamp(22px,4vw,38px)",fontWeight:700,color:C.text,fontFamily:SANS}}>Up in 60 seconds.</h2>
           </div>
-          <div className="grid grid-cols-3 gap-px bg-[#222]">
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:1,background:C.border}}>
             {STEPS.map((s,i)=>(
-              <div key={s.n} className="relative bg-[#181818] px-9 py-12 overflow-hidden">
-                <div className="absolute top-[-16px] right-[-4px] font-extrabold text-[#1c1c1c] leading-none select-none pointer-events-none"
-                  style={{fontSize:"7rem"}}>{s.n}</div>
-                {i<2 && <div className="absolute top-1/2 right-0 w-px h-8 bg-[#222] -translate-y-1/2"/>}
-                <p className="text-[10px] text-[#8b5cf6] tracking-[.25em] mb-5 relative">{s.n}</p>
-                <h3 className="text-[15px] font-bold text-[#e5e7eb] mb-2.5 relative">{s.title}</h3>
-                <p className="text-[12px] text-[#424242] leading-[1.7] relative">{s.body}</p>
+              <div key={s.n} className="feature-card" style={{background:C.bg,padding:"48px 36px",position:"relative",overflow:"hidden"}}>
+                <div style={{position:"absolute",top:-16,right:-4,fontWeight:800,fontSize:"7rem",
+                  color:`${C.border}66`,lineHeight:1,userSelect:"none",pointerEvents:"none"}}>{s.n}</div>
+                <p style={{fontSize:10,color:C.violet,letterSpacing:".25em",marginBottom:20,position:"relative",fontFamily:MONO}}>{s.n}</p>
+                <h3 style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:10,position:"relative",fontFamily:SANS}}>{s.title}</h3>
+                <p style={{fontSize:12,color:C.textSec,lineHeight:1.7,position:"relative",fontFamily:SANS}}>{s.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA ─────────────────────────────────────────────────── */}
-      <section className="relative border-t border-[#222] py-24 px-6 overflow-hidden">
-        {/* corner brackets */}
-        <div className="absolute top-0 left-0 h-px w-16 bg-[rgba(139,92,246,.22)]"/>
-        <div className="absolute top-0 left-0 w-px h-16 bg-[rgba(139,92,246,.22)]"/>
-        <div className="absolute bottom-0 right-0 h-px w-16 bg-[rgba(56,189,248,.16)]"/>
-        <div className="absolute bottom-0 right-0 w-px h-16 bg-[rgba(56,189,248,.16)]"/>
-
-        {/* glow */}
-        <div className="rv-glow absolute pointer-events-none"
-          style={{width:500,height:180,left:"50%",top:"50%",transform:"translate(-50%,-50%)",
-            background:"radial-gradient(ellipse,rgba(139,92,246,.2) 0%,transparent 70%)",filter:"blur(30px)"}}/>
-
-        <div className="relative z-10 max-w-[520px] mx-auto text-center">
-          <p className="text-[10px] text-[#8b5cf6] tracking-[.3em] mb-4">// GET EARLY ACCESS</p>
-          <h2 className="font-extrabold text-[#e5e7eb] mb-2 leading-[1.1]"
-            style={{fontSize:"clamp(28px,5vw,52px)"}}>
-            Start coding<br/>
-            <span className="text-[#8b5cf6]">together</span>
-            <span className="rv-blink text-[#38bdf8]">▌</span>
-          </h2>
-          <p className="text-[12px] text-[#343434] mb-10">Free for teams up to 5. No credit card required.</p>
-          <div className="flex">
-            <input type="email" placeholder="your@email.com"
-              className="flex-1 px-4 py-3 bg-[#141414] border border-[#282828] text-[#e5e7eb] text-[11px] outline-none transition-colors duration-150 focus:border-[#8b5cf6]"
-              style={{fontFamily:M, borderRight:"none"}}/>
-            <button className="shrink-0 px-6 py-3 bg-[#8b5cf6] text-white text-[11px] font-bold tracking-[.1em] border-none cursor-pointer transition-colors duration-150 hover:bg-[#7c3aed]"
-              style={{fontFamily:M}}>GET ACCESS →</button>
+      {/* ── CTA ── */}
+      <section style={{borderTop:`1px solid ${C.border}`,padding:"96px 0",position:"relative",overflow:"hidden",width:"100%"}}>
+        <div style={{position:"absolute",top:0,left:0,height:1,width:64,background:"rgba(179,154,255,.22)"}}/>
+        <div style={{position:"absolute",top:0,left:0,width:1,height:64,background:"rgba(179,154,255,.22)"}}/>
+        <div style={{position:"absolute",bottom:0,right:0,height:1,width:64,background:"rgba(56,189,248,.15)"}}/>
+        <div style={{position:"absolute",bottom:0,right:0,width:1,height:64,background:"rgba(56,189,248,.15)"}}/>
+        <div className="rv-glow" style={{position:"absolute",pointerEvents:"none",
+          width:500,height:200,left:"50%",top:"50%",transform:"translate(-50%,-50%)",
+          background:"radial-gradient(ellipse,rgba(179,154,255,.22) 0%,transparent 70%)",filter:"blur(35px)"}}/>
+        <div style={{...WRAP,position:"relative",zIndex:10,display:"flex",justifyContent:"center"}}>
+          <div style={{maxWidth:520,width:"100%",textAlign:"center"}}>
+            <p style={{fontSize:10,color:C.violet,letterSpacing:".3em",marginBottom:16,fontFamily:MONO}}>// GET EARLY ACCESS</p>
+            <h2 style={{fontSize:"clamp(28px,5vw,52px)",fontWeight:800,color:C.text,marginBottom:8,lineHeight:1.1,fontFamily:SANS}}>
+              Start coding<br/>
+              <span style={{color:C.violet}}>together</span>
+              <span className="rv-blink" style={{color:C.blue}}>▌</span>
+            </h2>
+            <p style={{fontSize:12,color:C.textSec,marginBottom:40,fontFamily:SANS}}>Free for teams up to 5. No credit card required.</p>
+            <div style={{display:"flex"}}>
+              <input type="email" placeholder="your@email.com"
+                style={{flex:1,padding:"13px 16px",background:C.bgSurface,border:`1px solid ${C.border}`,
+                  borderRight:"none",color:C.text,fontSize:12,outline:"none",fontFamily:MONO}}
+                onFocus={e=>{e.currentTarget.style.borderColor=C.primary}}
+                onBlur={e=>{e.currentTarget.style.borderColor=C.border}}/>
+              <button className="btn-primary" style={{flexShrink:0,padding:"13px 24px"}}>GET ACCESS →</button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── FOOTER ──────────────────────────────────────────────── */}
-      <footer className="border-t border-[#222] py-6 px-6">
-        <div className="max-w-[1200px] mx-auto flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
+      {/* ── FOOTER ── */}
+      <footer style={{borderTop:`1px solid ${C.border}`,padding:"24px 0",width:"100%"}}>
+        <div style={{...WRAP,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
             <svg width="14" height="14" viewBox="0 0 18 18" fill="none">
-              <rect x="0" y="0" width="7" height="7" stroke="#8b5cf6" strokeWidth="1" fill="none"/>
-              <rect x="11" y="11" width="7" height="7" stroke="#38bdf8" strokeWidth="1" fill="none"/>
-              <line x1="7" y1="3.5" x2="14.5" y2="3.5" stroke="#8b5cf6" strokeWidth="1"/>
-              <line x1="14.5" y1="3.5" x2="14.5" y2="11" stroke="#8b5cf6" strokeWidth="1"/>
-              <line x1="3.5" y1="7" x2="3.5" y2="14.5" stroke="#38bdf8" strokeWidth="1"/>
-              <line x1="3.5" y1="14.5" x2="11" y2="14.5" stroke="#38bdf8" strokeWidth="1"/>
+              <rect x="0" y="0" width="7" height="7" stroke={C.violet} strokeWidth="1.2" fill="none"/>
+              <rect x="11" y="11" width="7" height="7" stroke={C.blue} strokeWidth="1.2" fill="none"/>
+              <line x1="7" y1="3.5" x2="14.5" y2="3.5" stroke={C.violet} strokeWidth="1"/>
+              <line x1="14.5" y1="3.5" x2="14.5" y2="11" stroke={C.violet} strokeWidth="1"/>
+              <line x1="3.5" y1="7" x2="3.5" y2="14.5" stroke={C.blue} strokeWidth="1"/>
+              <line x1="3.5" y1="14.5" x2="11" y2="14.5" stroke={C.blue} strokeWidth="1"/>
             </svg>
-            <span className="text-[#8b5cf6] font-extrabold text-[11px] tracking-[.18em]">REVOIRT</span>
+            <span style={{color:C.violet,fontWeight:800,fontSize:11,letterSpacing:".18em",fontFamily:SANS}}>REVOIRT</span>
           </div>
-          <span className="text-[9px] text-[#232323]">© 2025 Revoirt Inc. All rights reserved.</span>
-          <div className="flex gap-6">
+          <span style={{fontSize:9,color:C.textTer,fontFamily:MONO}}>© 2025 Revoirt Inc. All rights reserved.</span>
+          <div style={{display:"flex",gap:24}}>
             {["Privacy","Terms","GitHub","Twitter"].map(l=>(
-              <a key={l} href="#" className="text-[9px] text-[#272727] no-underline tracking-[.12em] transition-colors duration-150 hover:text-[#666]">{l}</a>
+              <a key={l} href="#" className="foot-link">{l}</a>
             ))}
           </div>
         </div>
