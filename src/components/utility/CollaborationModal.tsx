@@ -73,7 +73,7 @@ const CollaborationModal = () => {
       {
         isCopied && <Toast type={"success"} message="Copied!!!" duration={1000} onDone={() => setISCopied(false)} bottom="5%" left="50%" />
       }
-      <div ref={islandRef} className="absolute left-1/2 right-1/2 -translate-x-1/2 -translate-y-1/3 bg-mist-700 h-[70%] w-[35%] z-100 p-10 text-white flex flex-col items-center border border-gray-400 gap-5">
+      <div ref={islandRef} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-mist-700 min-h-[70%] w-[35%] z-100 p-10 text-white flex flex-col items-center border border-gray-400 gap-5">
         <h2 className="text-3xl text-center font-bold">Live Collaboration</h2>
         <p className="text-sm text-center">Invite people to join the live editor</p>
         <div id="organization-creation" className="mt-10">
@@ -84,7 +84,7 @@ const CollaborationModal = () => {
           <button className={`${isSessionStarted ? "bg-sky-500 border-sky-600" : "bg-gray-500 border-gray-600"} p-1.5 border-b-2  active:border-0 w-[25%] cursor-pointer`} disabled={!isSessionStarted} onClick={() => { window.navigator.clipboard.writeText(sharedLink); setISCopied(true) }}>Copy Link</button>
         </div>
         <button className="session-start mt-10 p-2 bg-purple-600 border-b-3 border-purple-800 active:border-0 cursor-pointer" onClick={handleSessionStart}>start session</button>
-        <p id="description" className="mt-10 text-sm p-5 flex bg-sky-700/50"><svg className="shrink-0 h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path className="fill-sky-500" d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zM224 160a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm-8 64l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24z" /></svg> enter you desired organization name, then start the session, copy and share the link with people wants to join you and collaborate.</p>
+        <p id="description" className="mt-5 text-sm p-5 flex bg-sky-700/50"><svg className="shrink-0 h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path className="fill-sky-500" d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zM224 160a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm-8 64l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24z" /></svg> enter you desired organization name, then start the session, copy and share the link with people wants to join you and collaborate.</p>
       </div>
     </>
   )
