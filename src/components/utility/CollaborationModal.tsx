@@ -12,6 +12,7 @@ const CollaborationModal = () => {
   const [sharedLink, setSharedLink] = useState<string>(link);
   const [isSessionClicked, setIsSessionClicked] = useState<boolean>(false);
   const [isCopied, setISCopied] = useState<boolean>(false);
+  const [isSessionEnded , setIsSessionEnded] = useState<boolean>(false);
 
   //global states
   const setIsCollaborating = useIsCollaborating(
@@ -33,10 +34,8 @@ const CollaborationModal = () => {
   const handleModalClick = (e: Event) => {
     if (
       islandRef.current &&
-      e.target instanceof Element &&
-      !Array.from(islandRef.current.children).includes(e.target) &&
-      !Array.from(islandRef.current.children[2].children).includes(e.target) &&
-      e.target !== islandRef.current
+      e.target instanceof Element && 
+      !islandRef.current.contains(e.target)
     ) {
       setIsCollaborating(false);
     } else return;
@@ -66,6 +65,7 @@ const CollaborationModal = () => {
     setSharedLink(link);
     setOrganizationName("");
     setIsSessionStarted(false);
+    setIsSessionEnded(true);
   };
 
   //Side Effects
@@ -88,7 +88,7 @@ const CollaborationModal = () => {
       {isSessionClicked && organizationName ? (
         <Toast
           type={"success"}
-          message="session started"
+          message="Session Started"
           duration={1500}
           onDone={() => setIsSessionClicked(false)}
           bottom="5%"
@@ -108,14 +108,14 @@ const CollaborationModal = () => {
         )
       )}
       { //bug here <-------------
-        !isSessionStarted && !organizationName && (
+        isSessionEnded && !organizationName && (
           <Toast
             type={"success"}
-            message="Session stopped"
+            message="Session Stopped"
             duration={1500}
-            onDone={() => setIsSessionClicked(false)}
+            onDone={() => setIsSessionEnded(false)}
             bottom="5%"
-            left="45%"
+            left="50%"
           />
         )
       }
@@ -166,14 +166,14 @@ const CollaborationModal = () => {
         {!isSessionStarted ? (
           <button
             className="session-start mt-10 p-2 bg-purple-600 border-b-3 border-purple-800 active:border-0 cursor-pointer"
-            onClick={handleSessionStart}
+            onMouseDown={(e) => {e.stopPropagation(); handleSessionStart()}}
           >
             Start Session
           </button>
         ) : (
-          <button
+          <button //bug here <-------------
             className="session-start mt-10 p-2 bg-red-500 border-b-3 border-red-700 active:border-0 cursor-pointer"
-            onClick={handleSessionEnd}
+            onMouseDown={(e) => {e.stopPropagation(); handleSessionEnd()}}
           >
             End Session
           </button>
