@@ -3,7 +3,7 @@ import { useIsCollaborating, useRemoteUserCount } from "../../states/store";
 
 const Navigation = () => {
   //global states
-
+  const isCollaborating = useIsCollaborating((state) => state.isCollaborating);
   const setIsCollaborating = useIsCollaborating(
     (state) => state.setIsCollaborating,
   );
@@ -27,7 +27,7 @@ const Navigation = () => {
           </h1>
         </li>
         <li id="right-utils" className="flex items-center gap-10 h-full">
-          {remoteUserCount > 0 && (
+          {isCollaborating && remoteUserCount > 0 && (
             <div
               id="connected-users"
               className="flex gap-2 items-center text-green-600"

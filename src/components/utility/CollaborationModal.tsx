@@ -62,9 +62,10 @@ const CollaborationModal = () => {
 
   const handleSessionEnd = async () => {
     omitURLHash(link);
-    setSharedLink(link);
-    setOrganizationName("");
-    setIsSessionStarted(false);
+    setIsCollaborating(false);
+    // setSharedLink(link);
+    // setOrganizationName("");
+    // setIsSessionStarted(false);
     setIsSessionEnded(true);
   };
 
