@@ -106,14 +106,14 @@ export const useShowToast = create<showToast>((set) => ({
     setShowToast: (next) => set({showToast : next})
 }));
 
-type isCollaborating = {
-    isCollaborating : boolean,
-    setIsCollaborating : (next:boolean) => void ;
+type booleanState = {
+    state : boolean;
+    setState : (next : boolean) => void ;
 }
 
-export const useIsCollaborating = create<isCollaborating>((set) => ({
-    isCollaborating : false ,
-    setIsCollaborating : (next) => set({isCollaborating : next})
+export const useIsCollaborating = create<booleanState>((set) => ({
+    state : false ,
+    setState : (next) => set({state : next})
 }))
 
 
@@ -127,12 +127,12 @@ export const useRemoteUserCount = create<remoteUserCount>((set) => ({
  setRemoteUserCount : (next : number) => set({remoteUserCount : next})
 }))
 
-type IsSessionStarted = {
-    isSessionStarted : boolean;
-    setIsSessionStarted : (next : boolean) => void ;
-}
+export const useIsSessionStarted = create<booleanState>((set) => ({
+ state : false ,
+ setState : (next : boolean) => set({state : next})
+}))
 
-export const useIsSessionStarted = create<IsSessionStarted>((set) => ({
- isSessionStarted : false ,
- setIsSessionStarted : (next : boolean) => set({isSessionStarted : next})
+export const useIsSessionEnded = create<booleanState>((set) => ({
+    state : false ,
+    setState : (next : boolean) => set({state : next})
 }))

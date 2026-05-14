@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useIsCollaborating, useIsSessionStarted } from "../../states/store.ts";
+import { useIsCollaborating, useIsSessionEnded, useIsSessionStarted } from "../../states/store.ts";
 // import useDebounce from "../../utills/hooks/useDebounce.tsx";
 import Toast from "../../utills/hooks/useToast.tsx";
 import { encryptRoomId } from "../../utills/services/hashRoomId.ts";
@@ -12,18 +12,18 @@ const CollaborationModal = () => {
   const [sharedLink, setSharedLink] = useState<string>(link);
   const [isSessionClicked, setIsSessionClicked] = useState<boolean>(false);
   const [isCopied, setISCopied] = useState<boolean>(false);
-  const [isSessionEnded , setIsSessionEnded] = useState<boolean>(false);
 
   //global states
   const setIsCollaborating = useIsCollaborating(
-    (state) => state.setIsCollaborating,
+    (state) => state.setState,
   );
   const isSessionStarted = useIsSessionStarted(
-    (state) => state.isSessionStarted,
+    (state) => state.state,
   );
   const setIsSessionStarted = useIsSessionStarted(
-    (state) => state.setIsSessionStarted,
+    (state) => state.setState,
   );
+  const setIsSessionEnded = useIsSessionEnded((state) => state.setState);
 
   //Ref objects
   const islandRef = useRef<HTMLDivElement>(null);
@@ -62,10 +62,7 @@ const CollaborationModal = () => {
 
   const handleSessionEnd = async () => {
     omitURLHash(link);
-    setIsCollaborating(false);
-    // setSharedLink(link);
-    // setOrganizationName("");
-    // setIsSessionStarted(false);
+    setOrganizationName("");
     setIsSessionEnded(true);
   };
 
@@ -79,9 +76,8 @@ const CollaborationModal = () => {
   useEffect(() => {
     if (!organizationName) {
       setSharedLink(link);
-      setIsSessionStarted(false);
     }
-    return () => setSharedLink(link);
+    return () => {}
   }, [organizationName]);
 
   return (
@@ -108,18 +104,6 @@ const CollaborationModal = () => {
           />
         )
       )}
-      { //bug here <-------------
-        isSessionEnded && !organizationName && (
-          <Toast
-            type={"success"}
-            message="Session Stopped"
-            duration={1500}
-            onDone={() => setIsSessionEnded(false)}
-            bottom="5%"
-            left="50%"
-          />
-        )
-      }
       {isCopied && (
         <Toast
           type={"success"}
