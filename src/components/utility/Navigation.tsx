@@ -1,11 +1,12 @@
 import React from "react";
-import { useIsCollaborating, useRemoteUserCount } from "../../states/store";
+import { useIsCollaborating, useRemoteUserCount, useIsSessionStarted } from "../../states/store";
 
 const Navigation = () => {
   //global states
-  const isCollaborating = useIsCollaborating((state) => state.isCollaborating);
+  
+  const isSessionStarted = useIsSessionStarted((state) => state.state)
   const setIsCollaborating = useIsCollaborating(
-    (state) => state.setIsCollaborating,
+    (state) => state.setState,
   );
   const count = useRemoteUserCount((state) => state.remoteUserCount);
   let remoteUserCount: number;
@@ -27,7 +28,7 @@ const Navigation = () => {
           </h1>
         </li>
         <li id="right-utils" className="flex items-center gap-10 h-full">
-          {isCollaborating && remoteUserCount > 0 && (
+          {isSessionStarted && remoteUserCount > 0 && (
             <div
               id="connected-users"
               className="flex gap-2 items-center text-green-600"

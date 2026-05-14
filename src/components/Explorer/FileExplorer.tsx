@@ -33,7 +33,7 @@ const FileExplorer = () => {
   const showToast = useShowToast((state) => state.showToast);
   const setShowToast = useShowToast((state) => state.setShowToast);
   const setRemoteUserCount = useRemoteUserCount((state) => state.setRemoteUserCount);
-  const isSessionStarted = useIsSessionStarted((state) => state.isSessionStarted);
+  const isSessionStarted = useIsSessionStarted((state) => state.state);
   
   const refreshFiles = async () => {
     cleanupRef.current?.();
