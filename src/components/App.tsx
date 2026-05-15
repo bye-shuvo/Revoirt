@@ -17,7 +17,6 @@ import {
   useCloseTerm,
   useIsCollaborating,
   useIsSessionEnded,
-  useIsSessionClicked
 } from "../states/store.ts";
 import CollaborationModal from "./utility/CollaborationModal.tsx";
 import Toast from "../utills/hooks/useToast.tsx";
@@ -27,9 +26,9 @@ const App = () => {
   useTerminalShortcut(termPanelRef);
   const setCloseTerm = useCloseTerm((state) => state.setCloseTerm);
   const isCollaborating = useIsCollaborating((state) => state.state);
+  const setIsCollaborating = useIsCollaborating((state) => state.setState);
   const isSessionEnded = useIsSessionEnded((state) => state.state);
-  const isSessionClicked = useIsSessionClicked((state) => state.state)
-  const setIsSessionClicked = useIsSessionClicked((state) => state.setState)
+  const setIsSessionEnded = useIsSessionEnded((state) => state.setState);
 
   return (
     <main className="h-screen w-screen flex flex-col justify-end font-jetbrains-mono">
@@ -42,12 +41,12 @@ const App = () => {
           ></div>
         </Activity>
       }
-      {isSessionClicked && isSessionEnded && (
+      {isSessionEnded && (
         <Toast
           type={"success"}
           message="Session Stopped"
           duration={1500}
-          onDone={() => setIsSessionClicked(false)}
+          onDone={() => {setIsSessionEnded(false); setIsCollaborating(false)}}
           bottom="5%"
           left="50%"
         />
