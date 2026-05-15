@@ -136,3 +136,10 @@ export const useIsSessionEnded = create<booleanState>((set) => ({
     state : false ,
     setState : (next : boolean) => set({state : next})
 }))
+
+export const useIsSessionClicked = create<booleanState>((set) => (
+    {
+        state : false,
+        setState : (next : boolean) => set({state : next})
+    }
+))

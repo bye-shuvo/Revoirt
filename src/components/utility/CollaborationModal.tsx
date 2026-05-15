@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useIsCollaborating, useIsSessionEnded, useIsSessionStarted } from "../../states/store.ts";
+import {
+  useIsCollaborating,
+  useIsSessionClicked,
+  useIsSessionEnded,
+  useIsSessionStarted,
+} from "../../states/store.ts";
 // import useDebounce from "../../utills/hooks/useDebounce.tsx";
 import Toast from "../../utills/hooks/useToast.tsx";
 import { encryptRoomId } from "../../utills/services/hashRoomId.ts";
@@ -10,20 +15,15 @@ const CollaborationModal = () => {
 
   const [organizationName, setOrganizationName] = useState<string>("");
   const [sharedLink, setSharedLink] = useState<string>(link);
-  const [isSessionClicked, setIsSessionClicked] = useState<boolean>(false);
   const [isCopied, setISCopied] = useState<boolean>(false);
 
   //global states
-  const setIsCollaborating = useIsCollaborating(
-    (state) => state.setState,
-  );
-  const isSessionStarted = useIsSessionStarted(
-    (state) => state.state,
-  );
-  const setIsSessionStarted = useIsSessionStarted(
-    (state) => state.setState,
-  );
+  const setIsCollaborating = useIsCollaborating((state) => state.setState);
+  const isSessionStarted = useIsSessionStarted((state) => state.state);
+  const setIsSessionStarted = useIsSessionStarted((state) => state.setState);
   const setIsSessionEnded = useIsSessionEnded((state) => state.setState);
+  const isSessionClicked = useIsSessionClicked((state) => state.state);
+  const setIsSessionClicked = useIsSessionClicked((state) => state.setState);
 
   //Ref objects
   const islandRef = useRef<HTMLDivElement>(null);
@@ -34,7 +34,7 @@ const CollaborationModal = () => {
   const handleModalClick = (e: Event) => {
     if (
       islandRef.current &&
-      e.target instanceof Element && 
+      e.target instanceof Element &&
       !islandRef.current.contains(e.target)
     ) {
       setIsCollaborating(false);
@@ -61,9 +61,12 @@ const CollaborationModal = () => {
   };
 
   const handleSessionEnd = async () => {
+    setIsSessionEnded(true);
+    setIsSessionClicked(true);
+    setIsSessionStarted(false);
+    setIsCollaborating(false);
     omitURLHash(link);
     setOrganizationName("");
-    setIsSessionEnded(true);
   };
 
   //Side Effects
@@ -77,7 +80,7 @@ const CollaborationModal = () => {
     if (!organizationName) {
       setSharedLink(link);
     }
-    return () => {}
+    return () => {};
   }, [organizationName]);
 
   return (
@@ -151,14 +154,20 @@ const CollaborationModal = () => {
         {!isSessionStarted ? (
           <button
             className="session-start mt-10 p-2 bg-purple-600 border-b-3 border-purple-800 active:border-0 cursor-pointer"
-            onMouseDown={(e) => {e.stopPropagation(); handleSessionStart()}}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              handleSessionStart();
+            }}
           >
             Start Session
           </button>
         ) : (
           <button //bug here <-------------
             className="session-start mt-10 p-2 bg-red-500 border-b-3 border-red-700 active:border-0 cursor-pointer"
-            onMouseDown={(e) => {e.stopPropagation(); handleSessionEnd()}}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              handleSessionEnd();
+            }}
           >
             End Session
           </button>
