@@ -5,7 +5,6 @@ import {
   useIsSessionEnded,
   useIsSessionStarted,
 } from "../../states/store.ts";
-// import useDebounce from "../../utills/hooks/useDebounce.tsx";
 import Toast from "../../utills/hooks/useToast.tsx";
 import { encryptRoomId } from "../../utills/services/hashRoomId.ts";
 import { changeURLHash, omitURLHash } from "../../utills/services/changeURL.ts";
@@ -35,9 +34,11 @@ const CollaborationModal = () => {
     if (
       islandRef.current &&
       e.target instanceof Element &&
+      document.contains(e.target) &&
       !islandRef.current.contains(e.target)
     ) {
       setIsCollaborating(false);
+      alert("Modal is not cliked");
     } else return;
   };
 
@@ -60,12 +61,10 @@ const CollaborationModal = () => {
     setIsSessionStarted(true);
   };
 
-  const handleSessionEnd = async () => {
+  const handleSessionEnd = () => {
     setIsSessionEnded(true);
-    setIsSessionClicked(true);
     setIsSessionStarted(false);
-    setIsCollaborating(false);
-    omitURLHash(link);
+    omitURLHash();
     setOrganizationName("");
   };
 
@@ -119,7 +118,7 @@ const CollaborationModal = () => {
       )}
       <div
         ref={islandRef}
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-mist-700 min-h-[70%] w-[35%] z-100 p-10 text-white flex flex-col items-center border border-gray-400 gap-5"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-mist-700 min-h-[70%] w-[35%] p-10 text-white flex flex-col items-center border border-gray-400 gap-5 z-100"
       >
         <h2 className="text-3xl text-center font-bold">Live Collaboration</h2>
         <p className="text-sm text-center">
@@ -131,10 +130,11 @@ const CollaborationModal = () => {
             type="text"
             placeholder="Type here"
             className="p-1 outline-2 outline-gray-600 w-full"
+            value={organizationName}
             onChange={handleOrganizationNameChange}
           />
           <p className="mt-10">Share the below link for live Collaboration</p>
-          <input //bug here <-------------
+          <input
             type="text"
             className="p-1 outline-2 outline-gray-600 mr-2 w-[70%]"
             value={sharedLink}
@@ -162,8 +162,8 @@ const CollaborationModal = () => {
             Start Session
           </button>
         ) : (
-          <button //bug here <-------------
-            className="session-start mt-10 p-2 bg-red-500 border-b-3 border-red-700 active:border-0 cursor-pointer"
+          <button
+            className="session-end mt-10 p-2 bg-red-500 border-b-3 border-red-700 active:border-0 cursor-pointer"
             onMouseDown={(e) => {
               e.stopPropagation();
               handleSessionEnd();

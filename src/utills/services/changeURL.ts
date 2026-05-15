@@ -2,6 +2,6 @@ export const changeURLHash = (urlHash : string) => {
     window.location.hash =  urlHash ;
 }
 
-export const omitURLHash = (link : string) => {
-    window.location.href = link;
+export const omitURLHash = () => {
+    history.replaceState(null , '' , window.location.pathname)
 }
