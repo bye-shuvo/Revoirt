@@ -23,7 +23,8 @@ const Toast = ({ type, message, duration, onDone, top, left, bottom, right }: { 
   useEffect(() => {
     const timer = () => {
       setDelay((prev) => {
-        if (prev && prev <= 0) {
+        if(!prev) return;
+        if (prev <= 0) {
           if (!timerRef.current) return;
           clearInterval(timerRef.current);
           return 0;
@@ -38,6 +39,12 @@ const Toast = ({ type, message, duration, onDone, top, left, bottom, right }: { 
       }
     };
   }, []);
+
+  useEffect(() => {
+    if(delay === 0){
+      onDone?.();
+    }
+  } , [delay]);
   return (
     <>
       <div
@@ -47,7 +54,7 @@ const Toast = ({ type, message, duration, onDone, top, left, bottom, right }: { 
           bottom: position.bottom,
           right: position.right,
         }}
-        className={`absolute z-100 text-white backdrop-blur-2xl bg-[#2D425C]/50 px-3 pt-1 pb-1 rounded-sm`}
+        className={`absolute z-100 text-white backdrop-blur-2xl bg-[#2D425C]/50 px-3 pt-1 pb-1 rounded-sm transition-all ease-in-out duration-300`}
       >
         <p
           className={`${type === "general"
@@ -73,7 +80,6 @@ const Toast = ({ type, message, duration, onDone, top, left, bottom, right }: { 
                 : type === "warning" ? "bg-yellow-500" : "bg-slate-500"
             } absolute h-full w-full left-0 bottom-0 transition-all ease-linear duration-50`}
           style={{ width: `${String(delay && delay)}%` }}
-          onTransitionEnd={() => { (delay === 0) && onDone?.() }}
         ></p>
       </div>
     </>

@@ -17,6 +17,7 @@ import {
   useCloseTerm,
   useIsCollaborating,
   useIsSessionEnded,
+  useIsSessionClicked
 } from "../states/store.ts";
 import CollaborationModal from "./utility/CollaborationModal.tsx";
 import Toast from "../utills/hooks/useToast.tsx";
@@ -27,7 +28,8 @@ const App = () => {
   const setCloseTerm = useCloseTerm((state) => state.setCloseTerm);
   const isCollaborating = useIsCollaborating((state) => state.state);
   const isSessionEnded = useIsSessionEnded((state) => state.state);
-  const setIsSessionEnded = useIsSessionEnded((state) => state.setState);
+  const isSessionClicked = useIsSessionClicked((state) => state.state)
+  const setIsSessionClicked = useIsSessionClicked((state) => state.setState)
 
   return (
     <main className="h-screen w-screen flex flex-col justify-end font-jetbrains-mono">
@@ -40,18 +42,16 @@ const App = () => {
           ></div>
         </Activity>
       }
-      {
-        isSessionEnded && (
-          <Toast
-            type={"success"}
-            message="Session Stopped"
-            duration={1500}
-            onDone={() => setIsSessionEnded(false)}
-            bottom="5%"
-            left="50%"
-          />
-        )
-      }
+      {isSessionClicked && isSessionEnded && (
+        <Toast
+          type={"success"}
+          message="Session Stopped"
+          duration={1500}
+          onDone={() => setIsSessionClicked(false)}
+          bottom="5%"
+          left="50%"
+        />
+      )}
       <Navigation />
       <Group
         id="Revoirt-editor"
