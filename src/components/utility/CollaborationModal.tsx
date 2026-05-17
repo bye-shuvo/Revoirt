@@ -38,7 +38,6 @@ const CollaborationModal = () => {
       !islandRef.current.contains(e.target)
     ) {
       setIsCollaborating(false);
-      alert("Modal is not cliked");
     } else return;
   };
 

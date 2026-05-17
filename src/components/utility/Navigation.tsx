@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useIsCollaborating, useRemoteUserCount, useIsSessionStarted } from "../../states/store";
 
 const Navigation = () => {
+
+  const remoteUserCount = useRef(0);
   //global states
   
   const isSessionStarted = useIsSessionStarted((state) => state.state)
@@ -9,12 +11,15 @@ const Navigation = () => {
     (state) => state.setState,
   );
   const count = useRemoteUserCount((state) => state.remoteUserCount);
-  let remoteUserCount: number;
   if (count === 0) {
-    remoteUserCount = Number(window.sessionStorage.getItem("connected_users"));
+    remoteUserCount.current = Number(window.sessionStorage.getItem("connected_users"));
   } else {
-    remoteUserCount = count;
+    remoteUserCount.current = count;
   }
+
+  useEffect(() => {
+    remoteUserCount.current =  count ;
+  } , [count])
 
   return (
     <nav className="bg-mist-900 h-[7%] w-full flex items-center">
@@ -28,7 +33,7 @@ const Navigation = () => {
           </h1>
         </li>
         <li id="right-utils" className="flex items-center gap-10 h-full">
-          {isSessionStarted && remoteUserCount > 0 && (
+          {remoteUserCount.current > 0 && (
             <div
               id="connected-users"
               className="flex gap-2 items-center text-green-600"
@@ -37,7 +42,7 @@ const Navigation = () => {
                 id="connection-indicator"
                 className="h-1.5 w-1.5 rounded-full bg-green-400 animate-ping"
               ></span>
-              {remoteUserCount} user{remoteUserCount > 1 ? "s" : ""} connected
+              {remoteUserCount.current} user{remoteUserCount.current > 1 ? "s" : ""} connected
             </div>
           )}
           <div
