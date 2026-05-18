@@ -49,22 +49,27 @@ const FileExplorer = () => {
   const isSessionStarted = useIsSessionStarted((state) => state.state);
   const isSessionEnded = useIsSessionEnded((state) => state.state);
 
-  //retrive files state on every events
-  const refreshFiles = async () => {
-    cleanupRef.current?.();
-    const roomId = await decryptRoomId();
-    if (roomId) {
-      cleanupRef.current = useFilesCollaboration(
+
+  const setConnection = (roomId : string, files?: file[]) => {
+    console.log(files);
+     cleanupRef.current = useFilesCollaboration(
         roomId,
         setFiles,
         setRemoteUserCount,
         files,
       );
+  }
+
+  //retrive files state on every events
+  const refreshFiles = async () => {
+    cleanupRef.current?.();
+    const roomId = await decryptRoomId();
+    const files: file[] = await executeIDB(file);
+    if (roomId) {
+     setConnection(roomId , files);
     } else {
-      const files: file[] = await executeIDB(file);
       setFiles(files);
       await sessionStorage.put("files", files);
-      window.sessionStorage.setItem("connected_users", JSON.stringify(0));
     }
   };
 
@@ -74,8 +79,12 @@ const FileExplorer = () => {
       const files: file[] = await sessionStorage.get("files");
       setFiles(files);
       const roomId = await decryptRoomId();
-      !roomId &&
+      if(roomId){
+        setConnection(roomId, files);
+      } 
+      else{
         window.sessionStorage.setItem("connected_users", JSON.stringify(0));
+      }
     } catch {
       await refreshFiles();
     }

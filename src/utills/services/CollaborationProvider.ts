@@ -101,7 +101,7 @@ export const useFilesCollaboration = (
 
   const handleSync = async (isSyncronized: boolean) => {
     if (isSyncronized) {
-      if (files && yarray.length === 0) {
+      if ((files && files?.length !== 0) && yarray.length === 0) {
         yarray.insert(0, files);
       }
       setFiles(yarray.toArray());
@@ -122,5 +122,6 @@ export const useFilesCollaboration = (
       "connected_users",
       JSON.stringify(Math.max(0, provider.awareness.getStates().size)),
     );
+    setRemoteUserCount(0);
   };
 };
