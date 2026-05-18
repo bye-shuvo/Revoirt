@@ -4,6 +4,7 @@ import {
   useFileCount,
   useFilePath,
   useFiles,
+  useIsSessionStarted,
   useLineCount,
   type file,
 } from "../../states/store.ts";
@@ -27,6 +28,7 @@ const Tooltip = () => {
       return date.toString().replace("GMT+0600 (Bangladesh Standard Time)", "");
     }
   };
+  const isSessionStarted = useIsSessionStarted((state) => state.state);
 
   useEffect(() => {
     currentFileRef.current = files?.find((file) => file?.path === path);
@@ -38,7 +40,7 @@ const Tooltip = () => {
     connectedRoomRef.current = room;
     if (!room) return;
     window.sessionStorage.setItem("connected_room", room);
-  }, []);
+  }, [isSessionStarted]);
 
   return (
     <div className="absoute bottom-0 h-[5%] w-full flex justify-end gap-5 px-5 items-center text-white bg-[#181818] border-t border-gray-600 font-fira-code">
