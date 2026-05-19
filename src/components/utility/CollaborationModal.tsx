@@ -129,14 +129,14 @@ const CollaborationModal = () => {
             type="text"
             placeholder="Type here"
             className="p-1 outline-2 outline-gray-600 w-full"
-            value={organizationName}
+            value={organizationName || window.sessionStorage.getItem("connected_room") || undefined}
             onChange={handleOrganizationNameChange}
           />
           <p className="mt-10">Share the below link for live Collaboration</p>
           <input
             type="text"
             className="p-1 outline-2 outline-gray-600 mr-2 w-[70%]"
-            value={sharedLink}
+            value={window.location.href}
             readOnly
           />
           <button
