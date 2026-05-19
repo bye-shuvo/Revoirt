@@ -37,7 +37,7 @@ const App = () => {
           <CollaborationModal />
           <div
             id="overlay"
-            className="absolute h-full w-full top-0 left-0 bg-neutral-900/10 z-50"
+            className="absolute h-full w-full top-0 left-0 bg-neutral-900/30 z-50 backdrop-blur-[3px]"
           ></div>
         </Activity>
       }

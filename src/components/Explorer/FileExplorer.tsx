@@ -47,11 +47,12 @@ const FileExplorer = () => {
     (state) => state.setRemoteUserCount,
   );
   const isSessionStarted = useIsSessionStarted((state) => state.state);
+  const setIsSessionStarted = useIsSessionStarted((state) => state.setState);
   const isSessionEnded = useIsSessionEnded((state) => state.state);
 
 
   const setConnection = (roomId : string, files?: file[]) => {
-    console.log(files);
+    setIsSessionStarted(true);
      cleanupRef.current = useFilesCollaboration(
         roomId,
         setFiles,
