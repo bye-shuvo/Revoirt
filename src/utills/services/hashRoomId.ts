@@ -9,7 +9,7 @@ export const encryptRoomId = async (roomId : string) => {
 
 export const decryptRoomId = async () => {
     const roomIdHashFragment = window.location.hash ;
-    const roomIdHash = roomIdHashFragment.split("=").at(-1)?.split("_").at(-1);
+    const roomIdHash = roomIdHashFragment.split("=").at(-1)?.split("-").at(-1);
     if(!roomIdHash) return ;
     return decodeURIComponent(roomIdHash) ;
 }

@@ -114,9 +114,14 @@ export const useFilesCollaboration = (
   provider.on("sync", handleSync);
 
   return () => {
-    cleanupAwareness?.(); //cleanup the remote users count
+    cleanupAwareness?.();
     provider.off("sync", handleSync);
     provider.destroy();
     ydoc.destroy();
+    window.sessionStorage.setItem(
+      "connected_users",
+      JSON.stringify(Math.max(0, provider.awareness.getStates().size)),
+    );
+    setRemoteUserCount(0);
   };
 };

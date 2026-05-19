@@ -1,24 +1,17 @@
 import type { WebsocketProvider } from "y-websocket";
 
-export const getRemoteUsersCount = (
-  provider: WebsocketProvider,
-  setRemoteUserCount: (remoteUserCount: number) => void,
-) => {
-  const getCount = () => Math.max(0, provider.awareness.getStates().size);
+export const getRemoteUsersCount = (provider: WebsocketProvider, setRemoteUserCount: (remoteUserCount: number) => void) => {
 
-  const handleChange = () => {
-    setRemoteUserCount(getCount());
-    window.sessionStorage.setItem(
-      "connected_users",
-      JSON.stringify(getCount()),
-    );
-  };
+    const getCount = () => Math.max(0 , provider.awareness.getStates().size);
 
-  provider.awareness.on("change", handleChange);
+    const handleChange = () => {
+        setRemoteUserCount(getCount());
+        window.sessionStorage.setItem('connected_users' , JSON.stringify(getCount()));
+    }
 
-  return () => {
-    provider.awareness.off("change", handleChange);
-    setRemoteUserCount(0);
-    window.sessionStorage.setItem("connected_users", JSON.stringify(0));
-  };
-};
+    provider.awareness.on('change' , handleChange);
+
+    return () => { 
+         provider.awareness.off('change' , handleChange);
+          window.sessionStorage.setItem('connected_users' , JSON.stringify(Math.max(0 , provider.awareness.getStates().size))); };
+}

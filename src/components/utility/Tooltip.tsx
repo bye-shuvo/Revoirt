@@ -36,16 +36,17 @@ const Tooltip = () => {
   }, [files, path]);
 
   useEffect(() => {
-    const room = window.location.hash.split("=").at(-1)?.split("_").at(0);
+    const room = window.location.hash.split("=").at(-1)?.split("-").at(0);
     connectedRoomRef.current = room;
     if (!room) return;
+    window.sessionStorage.setItem("connected_room", room);
   }, [isSessionStarted]);
 
   return (
     <div className="absoute bottom-0 h-[5%] w-full flex justify-end gap-5 px-5 items-center text-white bg-[#181818] border-t border-gray-600 font-fira-code">
       {connectedRoomRef.current && (
         <p className="text-green-500">
-          Connected Room : {connectedRoomRef.current} {" "}
+          Connected Room : {window.sessionStorage.getItem("connected_room")}{" "}
           <span className="text-white">|</span>{" "}
         </p>
       )}
