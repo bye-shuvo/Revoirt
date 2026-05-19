@@ -54,7 +54,7 @@ const CollaborationModal = () => {
     const roomId = `${organizationName.trim()}-${Date.now().toString()}`;
     const roomIdHash = await encryptRoomId(roomId); //creates hash for the files
     changeURLHash(
-      `room=${organizationName.trim()}-${encodeURIComponent(roomIdHash)}`,
+      `room=${organizationName.trim()}_${encodeURIComponent(roomIdHash)}`,
     );
     setSharedLink(window.location.href);
     setIsSessionStarted(true);
@@ -129,7 +129,7 @@ const CollaborationModal = () => {
             type="text"
             placeholder="Type here"
             className="p-1 outline-2 outline-gray-600 w-full"
-            value={organizationName || window.sessionStorage.getItem("connected_room") || undefined}
+            value={organizationName || window.location.hash.split("=").at(-1)?.split("_").at(0)}
             onChange={handleOrganizationNameChange}
           />
           <p className="mt-10">Share the below link for live Collaboration</p>
