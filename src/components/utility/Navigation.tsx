@@ -1,15 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import { useIsCollaborating, useRemoteUserCount, useIsSessionStarted } from "../../states/store";
+import { useIsCollaborating, useRemoteUserCount, useIsSessionStarted, useIsSessionEnded } from "../../states/store";
 
 const Navigation = () => {
 
   const remoteUserCount = useRef(0);
   //global states
   
-  const isSessionStarted = useIsSessionStarted((state) => state.state)
   const setIsCollaborating = useIsCollaborating(
     (state) => state.setState,
   );
+
   const count = useRemoteUserCount((state) => state.remoteUserCount);
   if (count === 0) {
     remoteUserCount.current = Number(window.sessionStorage.getItem("connected_users"));
